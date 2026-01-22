@@ -1,0 +1,19 @@
+{
+    "version": "1.0.0+2",
+    "name": "upsoftware/svarium",
+    "autoload": {
+        "psr-4": {
+            "Upsoftware\\Svarium\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "upSoftware.tech",
+            "email": "info@upsoftware.tech"
+        }
+    ],
+    "require": {
+        "inertiajs/inertia-laravel": "^2.0",
+        "vinkla/hashids": "^13.0"
+    }
+}
