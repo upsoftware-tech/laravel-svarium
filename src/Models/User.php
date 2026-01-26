@@ -8,6 +8,9 @@ use Upsoftware\Svarium\Traits\HasSetting;
 class User extends UserBase {
     use HasSetting;
 
+    protected $connection = 'central';
+
+
     public function routeNotificationForSms()
     {
         return $this->phone_number;

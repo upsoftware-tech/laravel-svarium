@@ -6,26 +6,28 @@ abstract class Field
 {
     public string $name;
     public string $label;
-    public string $attribute;
+    public string $key;
     public array $meta = [];
     public array $dependencies = [];
     public bool $isAccessor = false;
     public bool $visible = true;
     public string $relation;
     public bool $isRelation = false;
+    public bool $isSystem = false;
     public ?string $dateFormat = null;
     public array $validationRules = [];
+    public ?int $size = null;
 
-    public function __construct(string $name, ?string $attribute = null)
+    public function __construct(?string $name = null, ?string $key = null)
     {
         $this->name = $name;
         $this->relation = '';
-        $this->attribute = $attribute ?? strtolower($name);
+        $this->key = $key ?? strtolower($name);
     }
 
-    public static function make(string $name, ?string $attribute = null): static
+    public static function make(?string $name = null, ?string $key = null): static
     {
-        return new static($name, $attribute);
+        return new static($name, $key);
     }
 
     public function sortable(bool $value = true): static
@@ -37,6 +39,12 @@ abstract class Field
     public function isHidden(): static
     {
         $this->visible = false;
+        return $this;
+    }
+
+    public function size($size): static
+    {
+        $this->size = $size;
         return $this;
     }
 
@@ -83,20 +91,22 @@ abstract class Field
 
     public function toArray(): array
     {
-        $finalAttribute = $this->isRelation && !str_contains($this->attribute, '.')
-            ? $this->relation . '.' . $this->attribute
-            : $this->attribute;
+        $finalKey = $this->isRelation && !str_contains($this->key, '.')
+            ? $this->relation . '.' . $this->key
+            : $this->key;
 
-        return [
+        $data = [
             'type' => $this->type(),
             'visible' => $this->visible,
-            'attribute' => $finalAttribute,
+            'key' => $finalKey,
             'label' => $this->label ?? $this->name,
-            'meta' => $this->meta,
-            'relation' => $this->relation,
-            'is_accessor' => $this->isAccessor,
-            'is_relation' => $this->isRelation,
-            'date_format' => $this->dateFormat,
+            'system' => $this->isSystem
         ];
+
+        if ($this->size) {
+            $data["size"] = $this->size;
+        }
+
+        return $data;
     }
 }

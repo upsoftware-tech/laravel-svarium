@@ -28,9 +28,14 @@ class ApiResponseBuilder
     protected array $exclude = ['hash'];
     protected array $columns = [];
     protected array $filters = [];
+    protected array $visible = [];
 
     public function __construct(Builder $query, array $fields)
     {
+        $this->visible = collect($fields)
+            ->filter(fn($column) => $column->visible)
+            ->values()
+            ->all();
         $this->query = $query;
         $this->fields = $fields;
         $request = request();
@@ -39,7 +44,8 @@ class ApiResponseBuilder
             $this->filters = $request->filters;
         }
 
-        if ($request->has('sortBy')) {
+        if ($request->has('sort')) {
+            $sort = $request->sort;
             if (str_starts_with($request->sortBy, '-')) {
                 $sortBy = substr($request->sortBy, 1);
                 $this->descending(true);
@@ -98,13 +104,13 @@ class ApiResponseBuilder
         $isIdRequested = false;
 
         foreach ($this->fields as $field) {
-            if ($field->attribute === 'id') {
+            if ($field->key === 'id') {
                 $isIdRequested = true;
             }
 
             if (!$field->isAccessor && !$field->isRelation) {
-                if (!str_contains($field->attribute, '.') && in_array($field->attribute, $existingColumns)) {
-                    $dbColumns[] = $tableName . '.' . $field->attribute;
+                if (!str_contains($field->key, '.') && in_array($field->key, $existingColumns)) {
+                    $dbColumns[] = $tableName . '.' . $field->key;
                 }
             }
 
@@ -119,8 +125,8 @@ class ApiResponseBuilder
                 }
             }
 
-            if ($field->isRelation || str_contains($field->attribute, '.')) {
-                $parts = explode('.', $field->attribute);
+            if ($field->isRelation || str_contains($field->key, '.')) {
+                $parts = explode('.', $field->key);
                 $relationName = $parts[0];
 
                 if (method_exists($model, $relationName)) {
@@ -187,10 +193,10 @@ class ApiResponseBuilder
             foreach ($this->fields as $field) {
                 if ($field->visible) {
                     $value = null;
-                    if ($field->isRelation || str_contains($field->attribute, '.')) {
-                        $value = data_get($item, $field->attribute);
+                    if ($field->isRelation || str_contains($field->key, '.')) {
+                        $value = data_get($item, $field->key);
                     } else {
-                        $value = $item->{$field->attribute};
+                        $value = $item->{$field->key};
                     }
 
                     if ($field->dateFormat && $value) {
@@ -201,10 +207,10 @@ class ApiResponseBuilder
                         }
                     }
 
-                    if (str_contains($field->attribute, '.')) {
-                        Arr::set($mappedRow, $field->attribute, $value);
+                    if (str_contains($field->key, '.')) {
+                        Arr::set($mappedRow, $field->key, $value);
                     } else {
-                        $mappedRow[$field->attribute] = $value;
+                        $mappedRow[$field->key] = $value;
                     }
                 }
             }
@@ -222,7 +228,7 @@ class ApiResponseBuilder
 
         $columnsMetadata = array_map(function (Field $field) {
             return $field->toArray();
-        }, $this->fields);
+        }, $this->visible);
 
         return response()->json([
             'data'         => $paginator->items(),

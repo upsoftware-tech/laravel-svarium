@@ -60,7 +60,7 @@ abstract class Resource
     {
         return collect($this->fields())
             ->filter(fn($field) => $field->meta['sortable'] ?? false)
-            ->map(fn($field) => $field->attribute)
+            ->map(fn($field) => $field->key)
             ->toArray();
     }
 

@@ -1,5 +1,5 @@
 {
-    "version": "1.0.0+2",
+    "version": "1.0.0+4",
     "name": "upsoftware/svarium",
     "autoload": {
         "psr-4": {
@@ -12,8 +12,21 @@
             "email": "info@upsoftware.tech"
         }
     ],
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Upsoftware\\Svarium\\Providers\\SvariumServiceProvider"
+            ],
+            "aliases": {
+                "Svarium": "Upsoftware\\Svarium\\Facades\\Svarium"
+            }
+        }
+    },
     "require": {
         "inertiajs/inertia-laravel": "^2.0",
-        "vinkla/hashids": "^13.0"
+        "laravel-lang/common": "^6.7",
+        "vinkla/hashids": "^13.0",
+        "spatie/laravel-permission": "^6.24",
+        "stancl/tenancy": "^3.9"
     }
 }
