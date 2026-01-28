@@ -27,6 +27,7 @@
         "laravel-lang/common": "^6.7",
         "vinkla/hashids": "^13.0",
         "spatie/laravel-permission": "^6.24",
+        "spatie/laravel-translatable": "^6.12",
         "stancl/tenancy": "^3.9"
     }
 }

@@ -4,11 +4,10 @@ namespace Upsoftware\Svarium\Models;
 
 use App\Models\User as UserBase;
 use Upsoftware\Svarium\Traits\HasSetting;
+use Upsoftware\Svarium\Traits\UsesConnection;
 
 class User extends UserBase {
-    use HasSetting;
-
-    protected $connection = 'central';
+    use HasSetting, UsesConnection;
 
 
     public function routeNotificationForSms()

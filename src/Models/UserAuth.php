@@ -5,12 +5,11 @@ namespace Upsoftware\Svarium\Models;
 use Illuminate\Database\Eloquent\Model;
 use Upsoftware\Svarium\Traits\HasHash;
 use App\Models\User;
+use Upsoftware\Svarium\Traits\UsesConnection;
 
 class UserAuth extends Model
 {
-    use HasHash;
-
-    protected $connection = 'central';
+    use HasHash, UsesConnection;
 
     public $guarded = [];
 

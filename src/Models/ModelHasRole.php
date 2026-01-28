@@ -3,10 +3,11 @@
 namespace Upsoftware\Svarium\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Upsoftware\Svarium\Traits\UsesConnection;
 
 class ModelHasRole extends Model
 {
-    protected $connection = 'central';
+    use UsesConnection;
 
     public function role()
     {
