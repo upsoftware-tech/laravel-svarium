@@ -5,6 +5,8 @@ namespace Upsoftware\Svarium\Providers;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use Upsoftware\Svarium\Console\Commands\GenerateLangJson;
+use Upsoftware\Svarium\Console\Commands\InitCommand;
+use Upsoftware\Svarium\Console\Commands\LoginSocialCommand;
 use Upsoftware\Svarium\Console\Commands\MergeLangCommand;
 
 class SvariumServiceProvider extends ServiceProvider
@@ -22,6 +24,8 @@ class SvariumServiceProvider extends ServiceProvider
 
         if ($this->app->runningInConsole()) {
             $this->commands([
+                InitCommand::class,
+                LoginSocialCommand::class,
                 GenerateLangJson::class,
                 MergeLangCommand::class,
             ]);

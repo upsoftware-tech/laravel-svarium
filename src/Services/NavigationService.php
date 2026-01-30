@@ -58,6 +58,15 @@ class NavigationService
                     ->map(fn($child) => $this->formatItem($child))
                     ->toArray(),
             ];
+        } else if ($item->type === 'label') {
+            return [
+                'type' => 'label',
+                'label' => $item->label,
+            ];
+        } else if ($item->type === 'separator') {
+            return [
+                'type' => 'separator',
+            ];
         } else {
             return [
                 'id' => $item->hash,

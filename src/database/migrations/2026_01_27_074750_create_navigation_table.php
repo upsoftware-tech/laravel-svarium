@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('navigations', function (Blueprint $table) {
             $table->id();
             $table->foreignId('parent_id')->nullable()->constrained('navigations')->cascadeOnDelete();
-            $table->json('label');
+            $table->json('label')->nullable();
             $table->char('type')->default('item');
             $table->string('icon')->nullable();
             $table->string('route_name')->nullable();

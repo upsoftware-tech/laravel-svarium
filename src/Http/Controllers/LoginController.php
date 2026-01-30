@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 use Upsoftware\Svarium\Models\ModelHasRole;
 use App\Models\User;
+use Upsoftware\Svarium\Models\Setting;
 use Upsoftware\Svarium\Models\UserAuth;
 
 class LoginController extends Controller
@@ -17,7 +18,13 @@ class LoginController extends Controller
         if (Auth::check()) {
             return redirect('/');
         }
-        return inertia('Auth/Login');
+
+        $data = [];
+        $setting = Setting::getSettingGlobal('login.social', []);
+        $data['socials'] = $setting['items'] ?? [];
+        $data['cols'] = $setting['cols'] ?? [];
+
+        return inertia('Auth/Login', $data);
     }
 
     public function login(Request $request)

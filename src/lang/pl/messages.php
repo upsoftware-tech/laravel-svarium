@@ -21,5 +21,8 @@ return [
     'Select one of the following verification methods to proceed' => 'Wybierz jedną z poniższych metod weryfikacji, aby kontynuować.',
     'Verification code' => 'Kod weryfikacyjny',
     'Enter the verification code you received' => 'Wprowadź otrzymany kod weryfikacyjny',
-    'Inactive' => 'Niekatywny'
+    'Inactive' => 'Niekatywny',
+    'Password' => 'Hasło',
+    'Email address' => 'Adres e-mail',
+    'Log in with your email address' => 'Zaloguj się adresem e-mail'
 ];

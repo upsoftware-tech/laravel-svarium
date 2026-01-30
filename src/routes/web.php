@@ -4,11 +4,12 @@ use Illuminate\Support\Facades\Route;
 use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
 use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
 
-$middleware = [
-    'web',
-    InitializeTenancyByDomain::class,
-    PreventAccessFromCentralDomains::class
-];
+$middleware = ['web'];
+
+if (config('tenancy.enabled', false)) {
+    $middleware[] = InitializeTenancyByDomain::class;
+    $middleware[] = PreventAccessFromCentralDomains::class;
+}
 
 Route::prefix('auth')->middleware($middleware)->group(function() {
     Route::prefix('login')->group(function() {

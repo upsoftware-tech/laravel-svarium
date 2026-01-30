@@ -6,13 +6,14 @@ use Illuminate\Database\Eloquent\Model;
 
 class Setting extends Model {
     protected $fillable = [
+        'key',
         'model_type',
         'model_id',
-        'values'
+        'value'
     ];
 
     protected $casts = [
-        'values' => 'array',
+        'value' => 'array',
     ];
 
     /**
@@ -31,7 +32,7 @@ class Setting extends Model {
             ->where('model_id', $modelId)
             ->first();
 
-        return $setting ? ($setting->values[$key] ?? null) : null;
+        return $setting ? ($setting->value[$key] ?? null) : null;
     }
 
     /**
@@ -56,10 +57,10 @@ class Setting extends Model {
 
         $setting = $query->firstOrCreate(
             ['model_type' => $modelType, 'model_id' => $modelId],
-            ['values' => []]
+            ['value' => []]
         );
 
-        $setting->values = array_merge($setting->values, [$settingKey => $value]);
+        $setting->value = array_merge($setting->value, [$settingKey => $value]);
         $setting->save();
 
         return $setting;
@@ -86,16 +87,31 @@ class Setting extends Model {
             ->where('model_id', $modelId)
             ->first();
 
-        if (!$setting || !isset($setting->values[$settingKey])) {
+        if (!$setting || !isset($setting->value[$settingKey])) {
             return false;
         }
 
-        $values = $setting->values;
-        unset($values[$settingKey]);
+        $value = $setting->values;
+        unset($value[$settingKey]);
 
-        $setting->values = $values;
+        $setting->value = $value;
         $setting->save();
 
         return true;
+    }
+
+    public static function getSettingGlobal(string $key, $default = null) {
+        return static::where('key', $key)->value('value') ?? $default;
+    }
+
+    public static function setSettingGlobal(string $key, $value): void {
+        static::updateOrCreate(
+            ['key' => $key],
+            ['value' => $value]
+        );
+    }
+
+    public static function removeSettingGlobal(string $key): void {
+        static::where('key', $key)->delete();
     }
 }
