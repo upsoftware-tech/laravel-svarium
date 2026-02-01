@@ -104,11 +104,14 @@ class Setting extends Model {
         return static::where('key', $key)->value('value') ?? $default;
     }
 
-    public static function setSettingGlobal(string $key, $value): void {
-        static::updateOrCreate(
-            ['key' => $key],
-            ['value' => $value]
-        );
+    public static function setSettingGlobal(string $key, $value, $force = false): void {
+        $config = static::where('key', $key)->first();
+        if ($config) {
+            $value = $value + $config->value;
+            $config->update(['value' => $value]);
+        } else {
+            static::create(['key' => $key, 'value' => $value]);
+        }
     }
 
     public static function removeSettingGlobal(string $key): void {

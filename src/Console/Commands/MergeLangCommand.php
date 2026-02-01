@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\File;
 
 class MergeLangCommand extends Command
 {
-    protected $signature = 'svarium:lang.merge';
+    protected $signature = 'svarium:lang.merge {lang?}';
 
     protected $description = 'Łączy pliki JSON z paczki Svarium z plikami JSON głównej aplikacji.';
 

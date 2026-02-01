@@ -19,10 +19,7 @@ class LoginController extends Controller
             return redirect('/');
         }
 
-        $data = [];
-        $setting = Setting::getSettingGlobal('login.social', []);
-        $data['socials'] = $setting['items'] ?? [];
-        $data['cols'] = $setting['cols'] ?? [];
+        $data = Setting::getSettingGlobal('login.config', []);
 
         return inertia('Auth/Login', $data);
     }

@@ -20,12 +20,12 @@ class LoginSocialCommand extends CoreCommand
     ];
 
     protected array $socials = [
-        'google' => ['id' => 'google', 'icon' => 'logos:google-icon', 'label' => 'Login with Google'],
-        'facebook' => ['id' => 'facebook', 'icon' => 'logos:facebook', 'label' => 'Login with Facebook'],
-        'apple' => ['id' => 'apple', 'icon' => 'logos:apple', 'label' => 'Login with Apple'],
-        'linkedin' => ['id' => 'linkedin', 'icon' => 'logos:linkedin-icon', 'label' => 'Login with LinkedIn'],
-        'microsoft' => ['id' => 'microsoft', 'icon' => 'logos:microsoft-icon', 'label' => 'Login with Microsoft'],
-        'zoom' => ['id' => 'zoom', 'icon' => 'logos:zoom-icon', 'label' => 'Login with Zoom'],
+        'google' => ['id' => 'google', 'icon' => 'logos:google-icon', 'label' => 'Login with Google', 'provider' => 'Google'],
+        'facebook' => ['id' => 'facebook', 'icon' => 'logos:facebook', 'label' => 'Login with Facebook', 'provider' => 'Facebook'],
+        'apple' => ['id' => 'apple', 'icon' => 'logos:apple', 'label' => 'Login with Apple', 'provider' => 'Apple'],
+        'linkedin' => ['id' => 'linkedin', 'icon' => 'logos:linkedin-icon', 'label' => 'Login with LinkedIn', 'provider' => 'LinkedIn'],
+        'microsoft' => ['id' => 'microsoft', 'icon' => 'logos:microsoft-icon', 'label' => 'Login with Microsoft', 'provider' => 'Microsoft'],
+        'zoom' => ['id' => 'zoom', 'icon' => 'logos:zoom-icon', 'label' => 'Login with Zoom', 'provider' => 'Zoom'],
     ];
 
     protected array $providerPackages = [
@@ -131,10 +131,16 @@ class LoginSocialCommand extends CoreCommand
             'zoom'          => 'Zoom',
         ];
 
-        $setting = Setting::getSettingGlobal('login.social');
+        $setting = Setting::getSettingGlobal('login.config', []);
 
-        $socials = $setting["items"] ?? [];
+        $socials = $setting["socials"] ?? [];
         $cols = $setting["cols"] ?? 2;
+        $minimal = (string)$setting["minimal"] ?? "false";
+        $minimal = $minimal ? "true" : "false";
+        $orLabel = $setting["orLabel"] ?? "or";
+
+        $onlySocialName = $setting["onlySocialName"] ?? "false";
+        $onlySocialName = $onlySocialName ? "true" : "false";
 
         $default = array_column($socials, 'id');
 
@@ -186,7 +192,7 @@ class LoginSocialCommand extends CoreCommand
                     $this->newLine();
                     $this->info("Dostawca '$provider' wymaga dodatkowego pakietu.");
 
-                    if ($this->confirm("Czy zainstalować $package teraz?", true)) {
+                    if ($this->confirm("Czy zainstalować $package teraz?", false)) {
                         $this->info("Instalowanie $package...");
                         passthru("composer require $package");
 
@@ -217,8 +223,23 @@ class LoginSocialCommand extends CoreCommand
                 $this->addConfigKey('services.php', $provider, $config);
             }
 
-            $cols = $this->ask('Ilość kolumn', $cols);
-            Setting::setSettingGlobal('login.social', ['items' => $items, 'cols' => $cols]);
+
+
+            $minimal = select('Ustaw widok ikon bez tytułow (minimal)', ['true' => 'Tak', 'false' => 'Nie'], $minimal);
+            if ($minimal === "false") {
+                $cols = select('Wybierz liczbę kolumn', [1, 2, 3], $cols);
+                $onlySocialName = select('Wstaw tylko nazwę portalu społecznościowego', ['true' => 'Tak', 'false' => 'Nie'], $onlySocialName);
+            }
+
+            $orLabel = $this->ask('Tytuł nad logami logowania z Social Media', $orLabel);
+
+            Setting::setSettingGlobal('login.config', [
+                'socials' => $items,
+                'cols' => $cols,
+                'minimal' => $minimal === 'true',
+                'onlySocialName' => $onlySocialName === 'true',
+                'orLabel' => $orLabel
+            ]);
         }
 
         $this->info('Gotowe!');

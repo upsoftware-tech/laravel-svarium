@@ -18,7 +18,7 @@ return new class extends Migration
                 $table->string('model_type')->nullable();
                 $table->string('model_id')->nullable();
                 $table->string('key')->nullable();
-                $table->json('value');
+                $table->longText('value');
 
                 $table->index(['model_type', 'model_id']);
                 $table->unique(['model_type', 'model_id']);

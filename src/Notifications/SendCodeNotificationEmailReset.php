@@ -41,12 +41,12 @@ class SendCodeNotificationEmailReset extends Notification
         return (new MailMessage)
             ->subject(__('Your one-time code :code for password reset', ['code' => $this->code]))
             ->greeting(__('Hello!'))
-            ->line(__('We received a request to reset the password for your account in the Extra Poradnia system.'))
+            ->line(__('We received a request to reset the password for your account in the :syste system.', ['system' => config('app.name')]))
             ->line(__('To confirm the request to set a new password, enter the code below:'))
             ->line($this->code)
             ->line(__('The code and the link will expire in 30 minutes (:expires).', ['expires' => $this->expired_at]))
             ->line(__('If you did not request a verification code, you can safely ignore this message. If the message keeps repeating, please contact us.'))
-            ->salutation(__('Extra Poradnia Team'));
+            ->salutation(__('Team :system', ['system' => config('app.name')]));
     }
 
     /**

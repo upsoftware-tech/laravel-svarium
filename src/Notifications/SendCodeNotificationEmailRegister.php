@@ -41,12 +41,12 @@ class SendCodeNotificationEmailRegister extends Notification
         return (new MailMessage)
             ->subject(__('email.Your one-time login code :code', ['code' => $this->code]))
             ->greeting(__('email.Hello!'))
-            ->line(__('email.We received a request to log in to your account in the Extra Poradnia system.'))
+            ->line(__('email.We received a request to log in to your account in the :system system.', ['system' => config('app.name')]))
             ->line(__('email.To confirm the login, enter the code below:'))
             ->line($this->code)
             ->line(__('email.The code and the link will expire in 30 minutes (:expires).', ['expires' => $this->expired_at]))
             ->line(__('email.If you did not request a verification code, you can safely ignore this message. If the message keeps repeating, please contact us.'))
-            ->salutation(__('Extra Poradnia Team'));
+            ->salutation(__('Team :system', ['system' => config('app.name')]));
     }
 
     /**

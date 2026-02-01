@@ -9,7 +9,7 @@ use Illuminate\Support\Arr;
 class GenerateLangJson extends Command
 {
 
-    protected $signature = 'svarium:lang.prepare';
+    protected $signature = 'svarium:lang.prepare {lang?}';
 
     protected $description = 'Konwertuje pliki tłumaczeń PHP (messages.php) na pliki JSON (pl.json)';
 

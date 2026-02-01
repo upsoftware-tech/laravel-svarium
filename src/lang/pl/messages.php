@@ -24,5 +24,6 @@ return [
     'Inactive' => 'Niekatywny',
     'Password' => 'Hasło',
     'Email address' => 'Adres e-mail',
-    'Log in with your email address' => 'Zaloguj się adresem e-mail'
+    'Log in with your email address' => 'Zaloguj się adresem e-mail',
+    'or' => 'lub'
 ];

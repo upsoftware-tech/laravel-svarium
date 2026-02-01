@@ -35,9 +35,12 @@ class UserChangePasswordNotify extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-            ->line(__('Your password for accessing the Extra Poradnia panel has been changed.'))
+            ->greeting(__('Hello!'))
+            ->subject(__('svarium::email.Confirmation of password change'))
+            ->line(__('Your password for accessing the :system panel has been changed.', ['system' => config('app.name')]))
             ->line(__('Please remember this the next time you log in.'))
-            ->line(__('If you have not changed your password or believe this message to be incorrect, please contact us as soon as possible.'));
+            ->line(__('If you have not changed your password or believe this message to be incorrect, please contact us as soon as possible.'))
+            ->salutation(__('Team :system', ['system' => config('app.name')]));
     }
 
     /**

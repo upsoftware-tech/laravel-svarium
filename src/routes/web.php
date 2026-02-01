@@ -25,3 +25,5 @@ Route::prefix('auth')->middleware($middleware)->group(function() {
 
     Route::get('logout', 'LogoutController@logout')->middleware('auth')->name('logout');
 });
+
+Route::get('locale/{locale}', LocaleController::class)->name('locale');

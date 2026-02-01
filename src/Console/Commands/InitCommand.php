@@ -3,6 +3,7 @@
 namespace Upsoftware\Svarium\Console\Commands;
 
 use Illuminate\Support\Facades\File;
+use Upsoftware\Svarium\Models\Setting;
 
 class InitCommand extends CoreCommand
 {
@@ -10,6 +11,37 @@ class InitCommand extends CoreCommand
     protected $signature = 'svarium:init';
 
     protected $description = 'Iniciuje aplikację (dodaje niezbędną konfigurację)';
+
+    protected function addLoginConfiguration() {
+        $config = [];
+
+        $config['title'] = $this->ask('Tytuł strony logowania', 'Welcome back!');
+        $config['subtitle'] = $this->ask('Podtytuł strony logowania', 'Enter your email address and password');
+        $config['submitLabel'] = $this->ask('Tytuł buttona logowania', 'Log in with your email address');
+        if ($this->confirm('Czy chcesz dodać rejestrację uzytkownika?', true)) {
+            $config['showRegisterLink'] = true;
+            $config['registerLabel'] = $this->ask('Tytuł rejestracji', 'If you don’t have an account');
+            $config['registerLinkLabel'] = $this->ask('Tytuł linku rejestracji', 'sign up here');
+            $config['resetLink'] = $this->ask('Link do rejestracji', '/auth/register');
+        } else {
+            $config['showRegisterLink'] = false;
+            $config['registerLabel'] = '';
+            $config['registerLinkLabel'] = '';
+            $config['resetLink'] = '';
+        }
+
+        if ($this->confirm('Czy chcesz dodać reset hasła uzytkownika?', true)) {
+            $config['showResetLink'] = true;
+            $config['resetLabel'] = $this->ask('Tytuł linku resetu hasła', 'Forgot your password?');
+            $config['registerLink'] = $this->ask('Link do resetu hasła', '/auth/reseet');
+        } else {
+            $config['showResetLink'] = false;
+            $config['resetLabel'] = '';
+            $config['registerLink'] = '';
+        }
+
+        Setting::setSettingGlobal('login.config', $config);
+    }
 
     public function handle()
     {
@@ -65,16 +97,16 @@ class InitCommand extends CoreCommand
                 }
 
                 $this->info("Dodawanie języka: $code ...");
-                passthru("php artisan lang:add $code");
+                passthru("php artisan svarium:lang.add $code");
                 $this->newLine();
 
                 break;
             }
         }
 
-        $this->call('svarium:lang.prepare');
-        $this->call('svarium:lang.merge');
         $this->call('svarium:login.socials');
+
+        $this->addLoginConfiguration();
 
         $this->info('Gotowe!');
     }

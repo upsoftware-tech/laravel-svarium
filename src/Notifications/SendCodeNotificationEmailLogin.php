@@ -41,12 +41,12 @@ class SendCodeNotificationEmailLogin extends Notification
         return (new MailMessage)
             ->subject(__('svarium::email.Your one-time login code :code', ['code' => $this->code]))
             ->greeting(__('svarium::email.Hello!'))
-            ->line(__('svarium::email.We received a request to log in to your account in the').' '.env('APP_NAME'))
+            ->line(__('svarium::email.We received a request to log in to your account in the').' '.config('app.name'))
             ->line(__('svarium::email.To confirm the login, enter the code below:'))
             ->line($this->code)
             ->line(__('svarium::email.The code and the link will expire in 30 minutes (:expires).', ['expires' => $this->expired_at]))
             ->line(__('svarium::email.If you did not request a verification code, you can safely ignore this message. If the message keeps repeating, please contact us.'))
-            ->salutation(__('svarium::email.Team :name', ['name' => env('APP_NAME')]));
+            ->salutation(__('svarium::email.Team :system', ['system' => config('app.name')]));
     }
 
     /**
