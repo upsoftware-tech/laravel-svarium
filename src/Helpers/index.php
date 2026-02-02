@@ -2,6 +2,12 @@
 
 use Upsoftware\Svarium\Models\Setting;
 
+if (!function_exists('layout')) {
+    function layout() {
+        return app('layout');
+    }
+}
+
 function locales() {
     $locales = Setting::getSettingGlobal('locales', []);
     return array_values(array_map(function ($value) {
@@ -18,4 +24,8 @@ function locales() {
 
         return $array;
     }, $locales));
+}
+
+function set_title($title) {
+    layout()->set_title($title);
 }

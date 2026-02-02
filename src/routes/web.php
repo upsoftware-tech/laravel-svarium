@@ -3,8 +3,12 @@
 use Illuminate\Support\Facades\Route;
 use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
 use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
+use Upsoftware\Svarium\Http\Middleware\LocaleMiddleware;
+use Upsoftware\Svarium\Http\Middleware\HandleInertiaRequests;
 
 $middleware = ['web'];
+$middleware[] = LocaleMiddleware::class;
+$middleware[] = HandleInertiaRequests::class;
 
 if (config('tenancy.enabled', false)) {
     $middleware[] = InitializeTenancyByDomain::class;
@@ -17,11 +21,31 @@ Route::prefix('auth')->middleware($middleware)->group(function() {
         Route::post('/', 'LoginController@login');
     });
 
-    Route::get('{type}/method/{userAuth}', 'MethodController@init')->name('auth.method');
-    Route::post('{type}/method/{userAuth}', 'MethodController@set')->name('auth.method.set');
+    Route::prefix('{type}')->group(function() {
+        Route::prefix('method')->group(function() {
+            Route::prefix('{userAuth}')->group(function() {
+                Route::get('/', 'MethodController@init')->name('auth.method');
+                Route::post('/', 'MethodController@set')->name('auth.method.set');
+            });
+        });
 
-    Route::get('{type}/verification/{userAuth}', 'VerificationController@init')->name('auth.verification');
-    Route::post('{type}/verification/{userAuth}', 'VerificationController@set')->name('auth.verification.set');
+        Route::prefix('verification')->group(function() {
+            Route::prefix('{userAuth}')->group(function() {
+                Route::get('/', 'VerificationController@init')->name('auth.verification');
+                Route::post('/', 'VerificationController@set')->name('auth.verification.set');
+            });
+        });
+    });
+
+    Route::prefix('reset')->group(function() {
+        Route::get('/', 'ResetController@init')->name('reset');
+        Route::post('/', 'ResetController@reset')->name('reset.set');
+
+        Route::prefix('password/{userAuth}')->group(function() {
+            Route::get('/', 'ResetPasswordController@init')->name('reset.password');
+            Route::post('/', 'ResetPasswordController@reset')->name('reset.password.set');
+        });
+    });
 
     Route::get('logout', 'LogoutController@logout')->middleware('auth')->name('logout');
 });

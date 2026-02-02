@@ -9,7 +9,11 @@
         'The code and the link will expire in 30 minutes (:expires).' => 'Kod i link wygasną za 30 minut (:expires).',
         'If you did not request a verification code, you can safely ignore this message. If the message keeps repeating, please contact us.' => 'Jeśli to nie Ty prosiłeś(-aś) o kod weryfikacyjny, możesz bezpiecznie zignorować tę wiadomość. Jeśli wiadomość będzie się powtarzać, skontaktuj się z nami.',
         'Your one-time code :code for password reset' => 'Twój jednorazowy kod :code do resetu hasła',
-        'We received a request to reset the password for your account in the' => 'Otrzymaliśmy prośbę o zresetowanie hasła dla Twojego konta w',
+        'We received a request to reset the password for your account in the :system system.' => 'Otrzymaliśmy prośbę o zresetowanie hasła dla Twojego konta w panelu :system.',
         'To confirm the request to set a new password, enter the code below:' => 'Aby potwierdzić prośbę o nadanie nowego hasła, wprowadź poniższy kod:',
-        'Team :system' => 'Zespół :system'
+        'Team :system' => 'Zespół :system',
+        'Confirmation of password change' => 'Potwierdzenie zmiany hasła',
+        'Your password for accessing the :system panel has been changed.' => 'Twoje hasło dostępu do panelu :system zostało zmienione.',
+        'Please remember this the next time you log in.' => 'Pamiętaj o tym przy następnym logowaniu.',
+        'If you have not changed your password or believe this message to be incorrect, please contact us as soon as possible.' => 'Jeśli nie zmieniłeś hasła lub uważasz, że ta wiadomość jest nieprawidłowa, skontaktuj się z nami jak najszybciej.'
     ];

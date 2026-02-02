@@ -10,12 +10,15 @@ use Upsoftware\Svarium\Console\Commands\InitCommand;
 use Upsoftware\Svarium\Console\Commands\LoginSocialCommand;
 use Upsoftware\Svarium\Console\Commands\MergeLangCommand;
 use Upsoftware\Svarium\Console\Commands\SortLanguageCommand;
+use Upsoftware\Svarium\Services\LayoutService;
 
 class SvariumServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-
+        $this->app->singleton('layout', function($app) {
+            return new LayoutService();
+        });
     }
 
     public function boot(): void

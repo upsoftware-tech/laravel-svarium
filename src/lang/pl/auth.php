@@ -12,5 +12,8 @@ return [
     'Login with Zoom' => 'Zaloguj z Zoom',
     'If you don’t have an account' => 'Jeśli nie posiadasz konta',
     'sign up here' => 'zarejestruj się tutaj',
-    'The language has been changed to English' => 'Język został zmieniony na Polski'
+    'The language has been changed to English' => 'Język został zmieniony na Polski',
+    'or login with' => 'lub zaloguj za pomocą',
+    'Password recovery' => 'Odzyskiwanie hasła',
+    'Please enter the email address you use to log in' => 'Wpisz adres e-mail, którego używasz do logowania',
 ];

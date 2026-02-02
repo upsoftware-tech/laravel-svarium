@@ -45,6 +45,10 @@ class InitCommand extends CoreCommand
 
     public function handle()
     {
+        passthru('php artisan ide-helper:generate');
+        passthru('php artisan ide-helper:models -N');
+        passthru('php artisan ide-helper:meta');
+
         $this->info('Publikowanie Spatie Permission...');
         $this->call('vendor:publish', [
             '--provider' => "Spatie\\Permission\\PermissionServiceProvider"
@@ -60,6 +64,8 @@ class InitCommand extends CoreCommand
             '--provider' => "Vinkla\Hashids\HashidsServiceProvider"
         ]);
 
+        passthru('php artisan vendor:publish --provider="Spatie\Activitylog\ActivitylogServiceProvider" --tag="activitylog-config"');
+
         if ($this->confirm('Czy opublikować zasoby konfiguracyjne Tenancy?', false)) {
             $this->info('Publikowanie Hashids...');
             $this->call('vendor:publish', [
@@ -70,6 +76,8 @@ class InitCommand extends CoreCommand
                 $this->info('Dodano klucz "enabled" => true do config/tenancy.php');
             }
         }
+
+        passthru("php artisan native:install");
 
         $currentLocale = config('app.locale');
         $selectedLocale = $this->ask('Podaj domyślny język aplikacji (APP_LOCALE)', $currentLocale);

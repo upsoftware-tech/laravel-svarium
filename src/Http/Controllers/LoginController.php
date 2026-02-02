@@ -38,7 +38,11 @@ class LoginController extends Controller
             if (tenant() && tenant()->id) {
                 $tenant_id = tenant()->id;
             }
-            $has_role = ModelHasRole::where('model_id', $user->id)->where('tenant_id', $tenant_id)->where('model_type', 'App\Models\User')->where('status', 1)->count() > 0;
+            $queryRole = ModelHasRole::where('model_id', $user->id)->where('model_type', 'App\Models\User')->where('status', 1);
+            if (config('tenancy.enabled', false)) {
+                $queryRole->where('tenant_id', $tenant_id);
+            }
+            $has_role = $queryRole->count() > 0;
         }
         if (! $user || ! $has_role || ! Hash::check($request->password, $user->password)) {
             throw ValidationException::withMessages([
@@ -46,7 +50,11 @@ class LoginController extends Controller
             ]);
         }
 
-        if ($user->getSetting('otp_status', true, 'central') === true) {
+        $connection = null;
+        if (config('tenancy.enabled', false)) {
+            $connection = 'central';
+        }
+        if ($user->getSetting('otp_status', true, $connection) === true) {
             $userAuth = UserAuth::setToken($user, 'login');
             return redirect()->route('auth.method', ['type' => 'login', 'userAuth' => $userAuth->hash]);
         } else {

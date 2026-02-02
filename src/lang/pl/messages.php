@@ -17,7 +17,7 @@ return [
     'phone' => 'telefon',
     'password' => 'hasło',
     'password confirmation' => 'potwierdzenie hasła',
-    'Select verification method' => 'Wybierz metodę werufikacji',
+    'Select verification method' => 'Wybierz metodę weryfikacji',
     'Select one of the following verification methods to proceed' => 'Wybierz jedną z poniższych metod weryfikacji, aby kontynuować.',
     'Verification code' => 'Kod weryfikacyjny',
     'Enter the verification code you received' => 'Wprowadź otrzymany kod weryfikacyjny',
@@ -25,5 +25,18 @@ return [
     'Password' => 'Hasło',
     'Email address' => 'Adres e-mail',
     'Log in with your email address' => 'Zaloguj się adresem e-mail',
-    'or' => 'lub'
+    'or' => 'lub',
+    'New Password' => 'Nowe hasło',
+    'Confirm New Password' => 'Potwierdź nowe hasło',
+    'The text has been copied to the clipboard' => 'Tekst został skopiowany do schowka',
+    'Set a new password' => 'Ustaw nowe hasło',
+    'Enter a new password and repeat it to confirm' => 'Wprowadź nowe hasło i powtórz je, aby potwierdzić.',
+    'Generate' => 'Generuj',
+    'The password must contain lowercase and uppercase letters, a number, and a special character.' => 'Hasło musi zawierać małe i duże litery, cyfrę oraz znak specjalny.',
+    'The password should consist of at least :length characters' => 'Hasło powinno składać się z minimum :length znaków',
+    'At least one lowercase letter' => 'Co najmniej jedna mała litera',
+    'At least one capital letter' => 'Co najmniej jedna wielka litera',
+    'At least one digit' => 'Co najmniej jedna cyfra',
+    'At least one special character' => 'Co najmniej jeden znak specjalny',
+    'The password has been changed.' => 'Hasło zostało zmienione.'
 ];

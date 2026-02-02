@@ -37,10 +37,10 @@ class UserChangePasswordNotify extends Notification
         return (new MailMessage)
             ->greeting(__('Hello!'))
             ->subject(__('svarium::email.Confirmation of password change'))
-            ->line(__('Your password for accessing the :system panel has been changed.', ['system' => config('app.name')]))
-            ->line(__('Please remember this the next time you log in.'))
-            ->line(__('If you have not changed your password or believe this message to be incorrect, please contact us as soon as possible.'))
-            ->salutation(__('Team :system', ['system' => config('app.name')]));
+            ->line(__('svarium::email.Your password for accessing the :system panel has been changed.', ['system' => config('app.name')]))
+            ->line(__('svarium::email.Please remember this the next time you log in.'))
+            ->line(__('svarium::email.If you have not changed your password or believe this message to be incorrect, please contact us as soon as possible.'))
+            ->salutation(__('svarium::email.Team :system', ['system' => config('app.name')]));
     }
 
     /**
