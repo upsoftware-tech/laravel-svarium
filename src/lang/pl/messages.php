@@ -38,5 +38,10 @@ return [
     'At least one capital letter' => 'Co najmniej jedna wielka litera',
     'At least one digit' => 'Co najmniej jedna cyfra',
     'At least one special character' => 'Co najmniej jeden znak specjalny',
-    'The password has been changed.' => 'Hasło zostało zmienione.'
+    'The password has been changed.' => 'Hasło zostało zmienione.',
+    'My Account' => 'Moje konto',
+    'My Data' => 'Moje dane',
+    'Two Factor Auth' => 'Weryfikacja dwuetapowa',
+    'My Activity' => 'Dziennik aktywności',
+    'Dashboard' => 'Pulpit'
 ];

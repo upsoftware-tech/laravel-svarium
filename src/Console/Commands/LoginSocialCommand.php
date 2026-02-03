@@ -135,7 +135,7 @@ class LoginSocialCommand extends CoreCommand
 
         $socials = $setting["socials"] ?? [];
         $cols = $setting["cols"] ?? 2;
-        $minimal = (string)$setting["minimal"] ?? "false";
+        $minimal = isset($setting["minimal"]) ? (string)$setting["minimal"] : "false";
         $minimal = $minimal ? "true" : "false";
         $orLabel = $setting["orLabel"] ?? "or";
 

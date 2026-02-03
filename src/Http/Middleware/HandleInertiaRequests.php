@@ -5,15 +5,19 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Middleware;
 use Inertia\Inertia;
+use Upsoftware\Svarium\Services\LayoutService;
 
 class HandleInertiaRequests extends Middleware
 {
     public function share(Request $request): array
     {
+        $setting = [];
+
         return array_merge(parent::share($request), [
             'locale' => session()->has('locale') ? session()->get('locale') : app()->getLocale(),
             'locales' => Inertia::once(fn () => locales()),
-            'workspaces' => Auth::check() ? [] : [],
+            'workspaces' => Auth::check() && method_exists(Auth::user(), 'getWorkspaces') ? $request->user()->getWorkspaces() : false,
+            'title' => fn () => get_title(),
             'flash' => [
                 'success' => fn () => $request->session()->get('success'),
                 'error' => fn () => $request->session()->get('error'),
@@ -21,6 +25,13 @@ class HandleInertiaRequests extends Middleware
                 'info' => fn () => $request->session()->get('info'),
                 'message' => fn () => $request->session()->get('message'),
             ],
+            'setting' => array_merge([
+                'navigation' => '',
+                'sidebar' => [
+                    'rollup' => false
+                ],
+                'topbar' => []
+            ], $setting)
         ]);
     }
 }

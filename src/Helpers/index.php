@@ -29,3 +29,7 @@ function locales() {
 function set_title($title) {
     layout()->set_title($title);
 }
+
+function get_title() {
+    return layout()->get_title();
+}

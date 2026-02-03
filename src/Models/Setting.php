@@ -100,8 +100,9 @@ class Setting extends Model {
         return true;
     }
 
-    public static function getSettingGlobal(string $key, $default = null) {
-        return static::where('key', $key)->value('value') ?? $default;
+    public static function getSettingGlobal(string $key, $default = null, $connection = null) {
+        $query = $connection ? self::on($connection) : self::on(env('DB_CONNECTION'));
+        return $query->where('key', $key)->value('value') ?? $default;
     }
 
     public static function setSettingGlobal(string $key, $value, $force = false): void {
