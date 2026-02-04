@@ -12,7 +12,7 @@ class Navigation extends Model
 {
     use UsesConnection, HasTranslations, HasSetting, HasHash;
 
-    protected $fillable = ['label', 'icon', 'route_name', 'parent_id', 'order', 'permission', 'status', 'position'];
+    protected $fillable = ['label', 'icon', 'route_name', 'parent_id', 'order', 'permission', 'status', 'position', 'type'];
 
     public array $translatable = ['label'];
 
@@ -28,5 +28,33 @@ class Navigation extends Model
             ->where('is_active', true)
             ->orderBy('order')
             ->get();
+    }
+
+    public function getNavigationOptions()
+    {
+        $options = [];
+        $options[NULL] = "BRAK NADRZEDNEGO";
+
+        $allNavigations = Navigation::orderBy('order')->get();
+
+        $buildTree = function ($items, $parentId = null, $depth = 0) use (&$options, &$buildTree) {
+            foreach ($items->where('parent_id', $parentId) as $item) {
+                // Pobieramy label (JSON lub String)
+                $label = is_array($item->label) ? ($item->label['pl'] ?? '') : $item->label;
+
+                // Tworzymy prefiks: poziom 0 = brak, poziom 1 = |-- , poziom 2 = |----
+                $prefix = $depth > 0 ? '|' . str_repeat('--', $depth) . ' ' : '';
+
+                // Zapisujemy: [ID] => "|-- Nazwa"
+                $options[$item->id] = $prefix . mb_strtoupper($label);
+
+                // Wywołujemy dla dzieci, zwiększając głębokość
+                $buildTree($items, $item->id, $depth + 1);
+            }
+        };
+
+        $buildTree($allNavigations);
+
+        return $options;
     }
 }

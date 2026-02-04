@@ -5,12 +5,17 @@ namespace Upsoftware\Svarium\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cookie;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
+use IvanoMatteo\LaravelDeviceTracking\Facades\DeviceTracker;
+use Jenssegers\Agent\Agent;
 use Upsoftware\Svarium\Models\ModelHasRole;
 use App\Models\User;
 use Upsoftware\Svarium\Models\Setting;
 use Upsoftware\Svarium\Models\UserAuth;
+use Upsoftware\Svarium\Notifications\LoginFromNewDeviceNotify;
 
 class LoginController extends Controller
 {
@@ -22,6 +27,67 @@ class LoginController extends Controller
         $data = Setting::getSettingGlobal('login.config', []);
 
         return inertia('Auth/Login', $data);
+    }
+
+    public function loginUser(Request $request, User $user) {
+
+        $remember = $request->has('remember') && ($request->remember === true || $request->remember === "true");
+        Auth::login($user);
+
+        $device = DeviceTracker::detectFindAndUpdate();
+
+        if ($device) {
+            DeviceTracker::flagCurrentAsVerified();
+
+            if ($device->wasRecentlyCreated) {
+                $user->notify(new LoginFromNewDeviceNotify(device()));
+            }
+
+            if ($remember) {
+                $agent = new Agent();
+
+                $browserId = Str::uuid()->toString();
+                $savedBrowser = $user->getSetting('remembered_browsers', [], central_connection());
+
+                if (!isset($savedBrowser[$browserId])) {
+                    $savedBrowser[$browserId] = [];
+                    $savedBrowser[$browserId] = device();
+                    $user->setSetting(['remembered_browsers' => $savedBrowser]);
+                }
+
+                Cookie::queue(
+                    Str::of(env('APP_NAME'))->slug('_') . '_browser_id',
+                    $browserId,
+                    60 * 24 * 365 * 5,
+                    null,
+                    null,
+                    true,
+                    true
+                );
+            }
+        }
+
+        $browser_id = null;
+        $cookie_name = Str::of(env('APP_NAME'))->slug('_') . '_browser_id';
+        if ($request->cookie($cookie_name)) {
+            $browser_id = $request->cookie($cookie_name);
+            if (!isset($savedBrowser[$browser_id])) {
+                $browser_id = null;
+            }
+        }
+
+        $platform = $agent->platform();
+        $browser = $agent->browser();
+
+        activity('login')
+            ->causedBy($user)
+            ->withProperties(array_merge([
+                'tenant_id' => tenant() ? tenant()->id : null,
+                'role_id' => null,
+                'browser_id' => $browser_id,
+            ], device()))->log('login');
+
+        return redirect()->intended('/');
     }
 
     public function login(Request $request)
@@ -54,12 +120,20 @@ class LoginController extends Controller
         if (config('tenancy.enabled', false)) {
             $connection = 'central';
         }
+
+        $cookie_name = Str::of(env('APP_NAME'))->slug('_') . '_browser_id';
+        if ($request->cookie($cookie_name)) {
+            $browser_id = $request->cookie($cookie_name);
+            $savedBrowser = $user->getSetting('remembered_browsers', [], central_connection());
+            if (isset($savedBrowser[$browser_id])) {
+                return $this->loginUser($request, $user);
+            }
+        }
         if ($user->getSetting('otp_status', true, $connection) === true) {
             $userAuth = UserAuth::setToken($user, 'login');
             return redirect()->route('auth.method', ['type' => 'login', 'userAuth' => $userAuth->hash]);
         } else {
-            Auth::login($user);
-            return redirect()->intended('/');
+            return $this->loginUser($request, $user);
         }
     }
 }

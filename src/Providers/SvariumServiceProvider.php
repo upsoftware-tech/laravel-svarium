@@ -7,7 +7,9 @@ use Illuminate\Support\ServiceProvider;
 use Upsoftware\Svarium\Console\Commands\AddLanguageCommand;
 use Upsoftware\Svarium\Console\Commands\GenerateLangJson;
 use Upsoftware\Svarium\Console\Commands\InitCommand;
+use Upsoftware\Svarium\Console\Commands\LayoutCommand;
 use Upsoftware\Svarium\Console\Commands\LoginSocialCommand;
+use Upsoftware\Svarium\Console\Commands\MenuAddCommand;
 use Upsoftware\Svarium\Console\Commands\MergeLangCommand;
 use Upsoftware\Svarium\Console\Commands\SortLanguageCommand;
 use Upsoftware\Svarium\Services\LayoutService;
@@ -37,6 +39,8 @@ class SvariumServiceProvider extends ServiceProvider
                 MergeLangCommand::class,
                 AddLanguageCommand::class,
                 SortLanguageCommand::class,
+                MenuAddCommand::class,
+                LayoutCommand::class,
             ]);
         }
 

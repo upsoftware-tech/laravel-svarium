@@ -4,7 +4,6 @@ namespace Upsoftware\Svarium\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 use Upsoftware\Svarium\Models\UserAuth;
 
@@ -14,6 +13,7 @@ class VerificationController extends Controller
         $data = [];
         $data['session'] = $userAuth->hash;
         $data['type'] = $type;
+        $data['remember'] = $type === 'login';
 
         return inertia('Auth/Verification', $data);
     }
@@ -27,8 +27,8 @@ class VerificationController extends Controller
         }
 
         if ($type === 'login') {
-            Auth::login($userAuth->user);
-            return redirect()->intended('/');
+            $loginController = new LoginController();
+            return $loginController->loginUser($request, $userAuth->user);
         } else if ($type === 'reset') {
             return redirect()->route('reset.password', ['userAuth' => $userAuth->hash]);
         }

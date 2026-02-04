@@ -5,6 +5,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Middleware;
 use Inertia\Inertia;
+use Upsoftware\Svarium\Models\Setting;
 use Upsoftware\Svarium\Services\LayoutService;
 
 class HandleInertiaRequests extends Middleware
@@ -25,13 +26,7 @@ class HandleInertiaRequests extends Middleware
                 'info' => fn () => $request->session()->get('info'),
                 'message' => fn () => $request->session()->get('message'),
             ],
-            'setting' => array_merge([
-                'navigation' => '',
-                'sidebar' => [
-                    'rollup' => false
-                ],
-                'topbar' => []
-            ], $setting)
+            'setting' => Setting::getSettingGlobal('layout'),
         ]);
     }
 }

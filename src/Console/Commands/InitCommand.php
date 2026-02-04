@@ -49,6 +49,20 @@ class InitCommand extends CoreCommand
         passthru('php artisan ide-helper:models -N');
         passthru('php artisan ide-helper:meta');
 
+        $this->info('Publikowanie migracji Device Tracking...');
+        $this->call('vendor:publish', [
+            '--provider' => "IvanoMatteo\\LaravelDeviceTracking\\LaravelDeviceTrackingServiceProvider",
+            '--tag' => "migrations"
+        ]);
+
+        passthru('php artisan migrate');
+
+        $this->info('Publikowanie konfiguracji Device Tracking...');
+        $this->call('vendor:publish', [
+            '--provider' => "IvanoMatteo\\LaravelDeviceTracking\\LaravelDeviceTrackingServiceProvider",
+            '--tag' => "config"
+        ]);
+
         $this->info('Publikowanie Spatie Permission...');
         $this->call('vendor:publish', [
             '--provider' => "Spatie\\Permission\\PermissionServiceProvider"
@@ -64,6 +78,8 @@ class InitCommand extends CoreCommand
             '--provider' => "Vinkla\Hashids\HashidsServiceProvider"
         ]);
 
+        passthru('php artisan vendor:publish --provider="Spatie\Activitylog\ActivitylogServiceProvider" --tag="activitylog-migrations"');
+        passthru('php artisan migrate');
         passthru('php artisan vendor:publish --provider="Spatie\Activitylog\ActivitylogServiceProvider" --tag="activitylog-config"');
 
         if ($this->confirm('Czy opublikować zasoby konfiguracyjne Tenancy?', false)) {

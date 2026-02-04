@@ -1,5 +1,6 @@
 <?php
 
+use Jenssegers\Agent\Agent;
 use Upsoftware\Svarium\Models\Setting;
 
 if (!function_exists('layout')) {
@@ -32,4 +33,34 @@ function set_title($title) {
 
 function get_title() {
     return layout()->get_title();
+}
+
+
+function central_connection() {
+    if ($forcedConnection = config('svarium.database_connection')) {
+        return $forcedConnection;
+    }
+
+    if (config()->has('tenancy.database.central_connection')) {
+        return config('tenancy.database.central_connection');
+    }
+
+    if (config()->has('database.connections.central')) {
+        return 'central';
+    }
+
+    return config('database.default');
+}
+
+function device(): array {
+    $agent = new Agent();
+    $array = [];
+    $array['ip'] = request()->ip();
+    $array['deviceType'] = $agent->device();
+    $array['platform'] = $agent->platform();
+    $array['platformVer'] = $agent->version($array['platform']);
+    $array['browser'] = $agent->browser();
+    $array['browserVer'] = $agent->version($array['browser']);
+
+    return $array;
 }

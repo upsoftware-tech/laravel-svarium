@@ -43,5 +43,7 @@ return [
     'My Data' => 'Moje dane',
     'Two Factor Auth' => 'Weryfikacja dwuetapowa',
     'My Activity' => 'Dziennik aktywności',
-    'Dashboard' => 'Pulpit'
+    'Dashboard' => 'Pulpit',
+    'Remember browser' => 'Zapamiętaj przeglądarkę',
+    'Subsequent logins on the same browser will not require an additional code' => 'Kolejne logowanie na tej samej przeglądarce nie będzie wymagało dodatkowego kodu'
 ];

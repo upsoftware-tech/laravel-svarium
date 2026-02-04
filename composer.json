@@ -24,8 +24,11 @@
     },
     "require": {
         "inertiajs/inertia-laravel": "^2.0",
+        "ivanomatteo/laravel-device-tracking": "^1.0",
+        "jenssegers/agent": "^2.6",
         "laravel-lang/common": "^6.7",
         "laravel-lang/locales": "^2.10",
+        "laravel/prompts": "^0.3.11",
         "vinkla/hashids": "^13.0",
         "nativephp/mobile": "^3.0",
         "psr/http-message": "^1.1",

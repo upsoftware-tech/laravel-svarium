@@ -15,5 +15,11 @@
         'Confirmation of password change' => 'Potwierdzenie zmiany hasła',
         'Your password for accessing the :system panel has been changed.' => 'Twoje hasło dostępu do panelu :system zostało zmienione.',
         'Please remember this the next time you log in.' => 'Pamiętaj o tym przy następnym logowaniu.',
-        'If you have not changed your password or believe this message to be incorrect, please contact us as soon as possible.' => 'Jeśli nie zmieniłeś hasła lub uważasz, że ta wiadomość jest nieprawidłowa, skontaktuj się z nami jak najszybciej.'
+        'If you have not changed your password or believe this message to be incorrect, please contact us as soon as possible.' => 'Jeśli nie zmieniłeś hasła lub uważasz, że ta wiadomość jest nieprawidłowa, skontaktuj się z nami jak najszybciej.',
+        'We have detected a new login to your account' => 'Wykryliśmy nowe logowanie do Twojego konta',
+        'Device' => 'Urządzenie',
+        'Operating system' => 'System operacyjny',
+        'Browser' => 'Przeglądarka',
+        'If this was your login, you do not need to do anything.' => 'Jeśli to było Twoje logowanie, nie musisz nic robić.',
+        'If you do not recognise this login, change your password immediately and contact us.' => 'Jeśli nie rozpoznajesz tego logowania, natychmiast zmień hasło i skontaktuj się z nami.',
     ];
