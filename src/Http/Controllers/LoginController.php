@@ -76,9 +76,6 @@ class LoginController extends Controller
             }
         }
 
-        $platform = $agent->platform();
-        $browser = $agent->browser();
-
         activity('login')
             ->causedBy($user)
             ->withProperties(array_merge([

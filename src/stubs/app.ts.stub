@@ -1,0 +1,58 @@
+import '../css/app.css';
+
+import { createInertiaApp } from '@inertiajs/vue3';
+import Svarium from '@upsoftware_tech/svarium';
+import { createApp, h } from 'vue';
+import { globalComponents } from './components';
+
+import { AppLayout } from '@upsoftware_tech/svarium';
+
+const appName = import.meta.env.VITE_APP_NAME || '{{APP_NAME}}';
+
+createInertiaApp({
+    title: (title) => (title ? `${title} - ${appName}` : appName),
+    resolve: (name) => {
+        const localPages = import.meta.glob('./pages/**/*.vue', { eager: true });
+        const vendorPages = import.meta.glob('../../node_modules/@upsoftware_tech/*/src/pages/**/*.vue', { eager: true });
+
+        let page = localPages[`./pages/${name}.vue`];
+
+        if (!page) {
+            const vendorPath = Object.keys(vendorPages).find((path) => path.endsWith(`src/pages/${name}.vue`));
+            if (vendorPath) {
+                page = vendorPages[vendorPath];
+            }
+        }
+
+        if (!page) {
+            throw new Error(`Page not found: ${name}. Checked local pages and @upsoftware_tech packages.`);
+        }
+
+        page.default.layout = page.default.layout || AppLayout;
+        return page;
+    },
+    setup({ el, App, props, plugin }) {
+        const vueApp = createApp({ render: () => h(App, props) });
+
+        vueApp.use(plugin)
+            .use(Svarium, {
+                prefix: '{{PREFIX}}',
+                i18n: {
+                    lang: props.initialPage.props.locale || 'pl',
+                    resolve: (lang: string) => import(`../../lang/${lang}.json`),
+                },
+                logo: {
+                    default: {},
+                },
+            });
+
+        Object.entries(globalComponents).forEach(([name, component]) => {
+            vueApp.component(name, component);
+        });
+
+        vueApp.mount(el);
+    },
+    progress: {
+        color: '#4B5563',
+    },
+});

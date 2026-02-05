@@ -4,13 +4,101 @@ namespace Upsoftware\Svarium\Console\Commands;
 
 use Illuminate\Support\Facades\File;
 use Upsoftware\Svarium\Models\Setting;
+use Upsoftware\Svarium\Traits\HasTailwindColor;
+use function Laravel\Prompts\confirm;
+use function Laravel\Prompts\select;
+use function Laravel\Prompts\text;
 
 class InitCommand extends CoreCommand
 {
+    use HasTailwindColor;
 
     protected $signature = 'svarium:init';
 
     protected $description = 'Iniciuje aplikację (dodaje niezbędną konfigurację)';
+
+    public function updateAppBootstrap(): void
+    {
+        $path = base_path('bootstrap/app.php');
+        $content = file_get_contents($path);
+
+        $content = preg_replace('/use App\\\\Http\\\\Middleware\\\\HandleInertiaRequests( as BaseHandleInertiaRequests)?;\n/', '', $content);
+        $content = preg_replace('/use Upsoftware\\\\Svarium\\\\Http\\\\Middleware\\\\HandleInertiaRequests;\n/', '', $content);
+
+        $newImports = "\nuse Upsoftware\Svarium\Http\Middleware\HandleInertiaRequests;\n" .
+            "use App\Http\Middleware\HandleInertiaRequests as BaseHandleInertiaRequests;";
+        $content = preg_replace('/(?<=<?php\n)/', $newImports, $content);
+
+        $content = preg_replace('/^\s*(Base)?HandleInertiaRequests::class,?\n/m', '', $content);
+
+        $replacement = "append: [\n            BaseHandleInertiaRequests::class,\n            HandleInertiaRequests::class,";
+
+        if (str_contains($content, 'append: [')) {
+            $content = preg_replace('/append: \[\s*/', $replacement . "\n            ", $content, 1);
+        }
+
+        $content = preg_replace("/\n{3,}/", "\n\n", $content);
+
+        file_put_contents($path, $content);
+    }
+
+    public function updateUserModel(): void
+    {
+        $path = app_path('Models/User.php');
+        if (!file_exists($path)) return;
+
+        $lines = file($path);
+        $traits = [
+            'HasRoles'   => 'Spatie\Permission\Traits\HasRoles',
+            'HasSetting' => 'Upsoftware\Svarium\Traits\HasSetting',
+            'UseDevices' => 'IvanoMatteo\LaravelDeviceTracking\Traits\UseDevices',
+        ];
+
+        foreach ($traits as $name => $namespace) {
+            $importExists = false;
+            $traitExists = false;
+            $classLineIndex = -1;
+            $lastUseIndex = -1;
+
+            foreach ($lines as $index => $line) {
+                if (str_contains($line, "use {$namespace};")) $importExists = true;
+                if (str_contains($line, "class User")) $classLineIndex = $index;
+                if ($classLineIndex === -1 && str_starts_with(trim($line), "use ")) $lastUseIndex = $index;
+
+                if ($classLineIndex !== -1 && preg_match("/\buse\b[^;]*\b{$name}\b/", $line)) {
+                    $traitExists = true;
+                }
+            }
+
+            if (!$importExists) {
+                $insertAt = ($lastUseIndex !== -1) ? $lastUseIndex + 1 : 2;
+                array_splice($lines, $insertAt, 0, ["use {$namespace};\n"]);
+                $classLineIndex++;
+            }
+
+            if (!$traitExists) {
+                $traitAdded = false;
+                for ($i = $classLineIndex; $i < count($lines); $i++) {
+                    if (preg_match('/^\s*use\s+([^;]+);/', $lines[$i], $matches)) {
+                        $lines[$i] = str_replace(';', ", {$name};", $lines[$i]);
+                        $traitAdded = true;
+                        break;
+                    }
+                }
+
+                if (!$traitAdded) {
+                    for ($i = $classLineIndex; $i < count($lines); $i++) {
+                        if (str_contains($lines[$i], '{')) {
+                            array_splice($lines, $i + 1, 0, ["    use {$name};\n"]);
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        file_put_contents($path, implode("", $lines));
+    }
 
     protected function addLoginConfiguration() {
         $config = [];
@@ -43,8 +131,102 @@ class InitCommand extends CoreCommand
         Setting::setSettingGlobal('login.config', $config);
     }
 
+    public function resources() {
+        $component_ts_stub = __DIR__ . '/../../stubs/components.ts.stub';
+        $app_ts_stub = __DIR__ . '/../../stubs/app.ts.stub';
+        $app_css_stub = __DIR__ . '/../../stubs/app.css.stub';
+        $routes_web_stub = __DIR__ . '/../../stubs/routes.web.stub';
+
+        $APP_NAME = env('APP_NAME');
+
+        $resource_js = resource_path('js');
+        $resource_css = resource_path('css');
+        $routes = base_path('routes');
+
+
+        if(file_exists($component_ts_stub)) {
+            $component_ts_content = file_get_contents($component_ts_stub);
+            $component_ts_path = $resource_js . '/components.ts';
+            if (file_exists($component_ts_path)) {
+                $force = confirm('Czy nadpisać plik: '.$component_ts_path, false, 'Tak', 'Nie');
+                if ($force) {
+                    $this->info('Nadpisany plik: '.$component_ts_path);
+                    file_put_contents($component_ts_path, $component_ts_content);
+                }
+            } else {
+                $this->info('Utworzono plik: '.$component_ts_path);
+                file_put_contents($component_ts_path, $component_ts_content);
+            }
+        }
+
+        if(file_exists($app_ts_stub)) {
+            $save = true;
+            $app_ts_content = file_get_contents($app_ts_stub);
+            $app_ts_path = $resource_js . '/app.ts';
+            if (file_exists($app_ts_path)) {
+                $force = confirm('Czy nadpisać plik: '.$app_ts_path, false, 'Tak', 'Nie');
+                if (!$force) {
+                    $save = false;
+                }
+            }
+
+            if ($save) {
+                $PREFIX = text('Podaj nazwę prefix dla komponentow', '', 'Sv');
+                $app_ts_content = strtr($app_ts_content, ['{{PREFIX}}' => $PREFIX, '{{APP_NAME}}' => $APP_NAME]);
+                $this->info('Utworzyłem plik: '.$app_ts_path);
+                file_put_contents($app_ts_path, $app_ts_content);
+            }
+        }
+
+
+        if(file_exists($app_css_stub)) {
+            $tailwindColor = select('Wybierz kolor podstawowy jasny (primary)', $this->tailwindColors());
+            $tailwindColorPalette = select('Wybierz odcień', [50,100,200,300,400,500,600,700,800,900,950]);
+            $palette = $this->tailwindPalette();
+            $PRIMARY = $palette[$tailwindColor][$tailwindColorPalette];
+
+            $sameColor = confirm('Czy ten sam kolor dodać jako kolor ciemny?', true, 'Tak', 'Nie');
+            if ($sameColor) {
+                $PRIMARY_DARK = $PRIMARY;
+                $tailwindColorDark = $tailwindColor;
+                $tailwindColorDarkPalette = $tailwindColorPalette;
+            } else {
+                $tailwindColorDark = select('Wybierz kolor podstawowy ciemny (primary)', $this->tailwindColors());
+                $tailwindColorDarkPalette = select('Wybierz odcień', [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950]);
+                $PRIMARY_DARK = $palette[$tailwindColorDark][$tailwindColorDarkPalette];
+            }
+
+            $this->info('Kolor podstawowy (jasny/light): '.$tailwindColor.' ('.$tailwindColorPalette.') - '.$PRIMARY);
+            $this->info('Kolor podstawowy (ciemny/dark): '.$tailwindColorDark.' ('.$tailwindColorDarkPalette.') - '.$PRIMARY_DARK);
+            $app_css_content = file_get_contents($app_css_stub);
+            $app_css_content = strtr($app_css_content, ['{{PRIMARY}}' => $PRIMARY, '{{PRIMARY_DARK}}' => $PRIMARY_DARK]);
+            $app_css_path = $resource_css . '/app.css';
+            $this->info('Utworzyłem plik: '.$app_css_path);
+            file_put_contents($app_css_path, $app_css_content);
+        }
+
+        if(file_exists($routes_web_stub)) {
+            $routes_web_content = file_get_contents($routes_web_stub);
+            $routes_web_path = $routes . '/web.php';
+            if (file_exists($routes_web_path)) {
+                $force = confirm('Czy nadpisać plik: '.$routes_web_path, false, 'Tak', 'Nie');
+                if ($force) {
+                    $this->info('Nadpisany plik: '.$routes_web_path);
+                    file_put_contents($routes_web_path, $routes_web_content);
+                }
+            } else {
+                $this->info('Utworzyłem plik: '.$routes_web_path);
+                file_put_contents($routes_web_path, $routes_web_content);
+            }
+        }
+    }
+
     public function handle()
     {
+        $this->updateUserModel();
+        $this->updateAppBootstrap();
+        $this->resources(); return;
+
         passthru('php artisan ide-helper:generate');
         passthru('php artisan ide-helper:models -N');
         passthru('php artisan ide-helper:meta');

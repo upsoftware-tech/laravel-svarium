@@ -3,85 +3,103 @@
 namespace Upsoftware\Svarium\Console\Commands;
 
 use Illuminate\Console\Command;
+use Upsoftware\Svarium\Models\Navigation;
 use Upsoftware\Svarium\Models\Setting;
+use Upsoftware\Svarium\Traits\HasTailwindColor;
 use function Laravel\Prompts\confirm;
 use function Laravel\Prompts\select;
 use function Laravel\Prompts\text;
 
 class LayoutCommand extends Command
 {
+    use HasTailwindColor;
+
     protected $signature = 'svarium:layout';
 
     protected $description = '(Re)konfiguracja układu panelu';
 
     protected function selectColors($label = 'Wybierz kolor'): string
     {
-        $tailwindColors = [
-            'slate'  => 'Łupkowy (slate)',
-            'gray'   => 'Szary (gray)',
-            'zinc'   => 'Cynkowy (zinc)',
-            'neutral' => 'Neutralny (neutral)',
-            'stone'  => 'Kamienny (stone)',
-            'red'    => 'Czerwony (red)',
-            'orange' => 'Pomarańczowy (orange)',
-            'amber'  => 'Bursztynowy (amber)',
-            'yellow' => 'Żółty (yellow)',
-            'lime'   => 'Limonkowy (lime)',
-            'green'  => 'Zielony (green)',
-            'emerald' => 'Szmaragdowy (emerald)',
-            'teal'   => 'Morski (teal)',
-            'cyan'   => 'Cyjan (cyan)',
-            'sky'    => 'Błękitny (sky)',
-            'blue'   => 'Niebieski (blue)',
-            'indigo' => 'Indygo (indigo)',
-            'violet' => 'Fioletowy (violet)',
-            'purple' => 'Purpurowy (purple)',
-            'fuchsia' => 'Fuksja (fuchsia)',
-            'pink'   => 'Różowy (pink)',
-            'rose'   => 'Różany (rose)',
-        ];
-
+        $tailwindColors = $this->tailwindColors();
         return select($label, $tailwindColors);
+    }
+
+    protected function getComponent($label, array $component = []) {
+        $componentName = text($label, '', $component["name"] ?? '');
+
+        $props = [];
+        if ($componentName === 'NavigationVertical') {
+            $navigations = Navigation::whereNull('parent_id')->orderBy('label')->get()->mapWithKeys(function($item) { return [$item->id => $item->label]; })->toArray();
+            $props['navigation_id'] = select('Wybierz menu nawigacyjne', array_merge(['' => 'Pomiń - nie dodawaj menu'], $navigations), $component["props"]["navigation_id"] ?? '');
+        }
+
+        return [
+            'name' => $componentName,
+            'props' => $props
+        ];
     }
 
     public function handle()
     {
-        $layout = [];
+        $setting = Setting::getSettingGlobal('layout');
 
-        $layout['theme']['enabled'] = confirm('Aktywować tryb jasny i ciemny?');
+        $layout['theme']['enabled'] = confirm('Włączyć tryb jasny i ciemny?', $setting['theme']['enabled'] ?? false, 'Tak', 'Nie');
 
-        $layout['sidebar']['enabled'] = confirm('Aktywować Sidebar?');
+        $layout['logo']['default']['light'] = text('Ściezka do logo (dla trybu jasnego)', '', $setting['logo']['default']['light'] ?? '');
+        $layout['logo']['default']['dark'] = text('Ściezka do logo (dla trybu ciemnego)', '', $setting['logo']['default']['dark'] ?? $layout['logo']['default']['light']);
+
+        $layout['logo']['small']['light'] = text('Ściezka do logo pomniejszonego (dla trybu jasnego)', '', $setting['logo']['small']['light'] ?? $layout['logo']['default']['light']);
+        $layout['logo']['small']['dark'] = text('Ściezka do logo pomniejszonego (dla trybu ciemnego)', '', $setting['logo']['small']['dark'] ?? $layout['logo']['default']['dark']);
+
+        $layout['sidebar']['enabled'] = confirm('Włączyć sidebar?', $setting['sidebar']['enabled'] ?? true, 'Tak', 'Nie');
 
         if ($layout['sidebar']['enabled']) {
-            $layout['sidebar']['width'] = (int) text('Szerokość Sidebara (px)', 320);
+            $layout['sidebar']['width'] = (int) text('Szerokość sidebara (px)', '', $setting['sidebar']['width'] ?? 320);
+
+            $layout['sidebar']['component'] = $this->getComponent('Komponent główny',$setting['sidebar']['component'] ?? ['name' => 'NavigationVertical']);
+
             $layout['sidebar']['position'] = select(
-                'Pozycja Sidebara',
+                'Pozycja sidebara',
                 ['left' => 'Lewa strona', 'right' => 'Prawa strona'],
-                'left'
+                $layout['sidebar']['position'] ?? 'left'
             );
 
-            $layout['sidebar']['header']['enabled'] =
-                confirm('Aktywować nagłówek (header) w Sidebarze?');
+            $layout['sidebar']['header']['enabled'] = confirm('Włączyć nagłówek w sidebarze?', $setting['sidebar']['header']['enabled'] ?? true, 'Tak', 'Nie');
+            $layout['sidebar']['footer']['enabled'] = confirm('Włączyć stopkę w sidebarze?', $setting['sidebar']['footer']['enabled'] ?? true, 'Tak', 'Nie');
+            if ($layout['sidebar']['footer']['enabled']) {
+                $layout['sidebar']['footer']['component']['name'] = $this->getComponent('Komponent w stopce w SideBar?', $setting['sidebar']['component'] ?? ['name' => 'SidebarUser']);
+            }
+
+            $layout['sidebar']['top']['enabled'] = confirm('Włączyć dodatkową strefę pod nagłowkiem w sidebarze?', $setting['sidebar']['top']['enabled'] ?? false, 'Tak', 'Nie');
+            $layout['sidebar']['bottom']['enabled'] = confirm('Włączyć dodatkową strefę nad stopką w sidebarze?', $setting['sidebar']['bottom']['enabled'] ?? false, 'Tak', 'Nie');
+            if ($layout['sidebar']['bottom']['enabled']) {
+                $layout['sidebar']['bottom']['component'] = $this->getComponent('Komponent w dodatkowej strefie w SideBar', $setting['sidebar']['component'] ?? ['name' => 'NavigationVertical']);
+            }
         }
 
-        $layout['header']['enabled'] =
-            confirm('Aktywować nagłówek strony (Header – górny pasek)?');
+        $layout['aside']['enabled'] = confirm('Włączyć dodatkowy panel boczny?', false, 'Tak', 'Nie');
+        if ($layout['aside']['enabled']) {
+            $layout['aside']['width'] = (int) text('Szerokość panelu bocznego (px)', 64);
 
-        $layout['content']['header']['enabled'] =
-            confirm('Aktywować nagłówek w obszarze treści (content)?');
+            $layout['aside']['header']['enabled'] = confirm('Włączyć nagłówek w panelu bocznym?', true, 'Tak', 'Nie');
+            $layout['aside']['footer']['enabled'] = confirm('Włączyć stopkę w panelu bocznym?', true, 'Tak', 'Nie');
+        }
 
-        $layout['content']['footer']['enabled'] =
-            confirm('Aktywować stopkę w obszarze treści (content)?');
+        $layout['header']['enabled'] = confirm('Włączyć nagłówek strony (górny pasek)?', false, 'Tak', 'Nie');
+
+        $layout['content']['header']['enabled'] = confirm('Włączyć nagłówek nad treścią?', true, 'Tak', 'Nie');
+
+        $layout['content']['footer']['enabled'] = confirm('Włączyć stopkę treści?', false, 'Tak', 'Nie');
 
         $layout['content']['appearance'] = [
-            'border'  => confirm('Dodać obramowanie treści?'),
-            'rounded' => confirm('Zaokrąglić rogi treści?'),
-            'margin'  => confirm('Dodać marginesy wokół treści?'),
+            'border'  => confirm('Dodać obramowanie treści?', true, 'Tak', 'Nie'),
+            'rounded' => confirm('Zaokrąglić rogi treści?', true, 'Tak', 'Nie'),
+            'margin'  => confirm('Dodać marginesy wokół treści?', true, 'Tak', 'Nie'),
         ];
 
-        $layout['footer']['enabled'] =
-            confirm('Aktywować stopkę strony (Footer – dół strony)?');
+        $layout['footer']['enabled'] = confirm('Włączyć stopkę strony (dół strony)?', false, 'Tak', 'Nie');
 
+        print_r($layout);
         Setting::setSettingGlobal('layout', $layout);
     }
 }

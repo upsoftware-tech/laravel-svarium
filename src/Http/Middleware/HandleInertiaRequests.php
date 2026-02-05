@@ -5,8 +5,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Middleware;
 use Inertia\Inertia;
+use Upsoftware\Svarium\Models\Navigation;
 use Upsoftware\Svarium\Models\Setting;
 use Upsoftware\Svarium\Services\LayoutService;
+use Upsoftware\Svarium\Services\NavigationService;
 
 class HandleInertiaRequests extends Middleware
 {
@@ -27,6 +29,13 @@ class HandleInertiaRequests extends Middleware
                 'message' => fn () => $request->session()->get('message'),
             ],
             'setting' => Setting::getSettingGlobal('layout'),
+            'navigation' => Auth::check() ?
+                Navigation::whereNull('parent_id')->get()->mapWithKeys(function($navigation) {
+                    return [
+                        $navigation->id => NavigationService::make()->getTree($navigation->id),
+                    ];
+                })
+            : [],
         ]);
     }
 }
