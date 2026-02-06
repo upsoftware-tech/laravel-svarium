@@ -33,6 +33,27 @@ class LayoutCommand extends Command
             $props['navigation_id'] = select('Wybierz menu nawigacyjne', array_merge(['' => 'Pomiń - nie dodawaj menu'], $navigations), $component["props"]["navigation_id"] ?? '');
         }
 
+        if (isset($component["props"])) {
+            foreach ($component["props"] as $key => $value) {
+                if ($key !== "navigation_id") {
+                    $newProps = text("Parametr: " . $key, "", "{$key}: {$value}");
+                    $parts = explode(":", $newProps);
+                    $props[trim($parts[0])] = trim($parts[1]);
+                }
+            }
+        }
+
+        $stop = false;
+        while (!$stop) {
+            if (!confirm('Dodać kolejne parametry do komponentu "'.$componentName.'"?', false, 'Tak', 'Nie')) {
+                $stop = true;
+            } else {
+                $newProps = text("Wprowadź nowy parametr klucz: wartość (np. enabled: true)");
+                $parts = explode(":", $newProps);
+                $props[trim($parts[0])] = trim($parts[1]);
+            }
+        }
+
         return [
             'name' => $componentName,
             'props' => $props
@@ -55,7 +76,8 @@ class LayoutCommand extends Command
 
         if ($layout['sidebar']['enabled']) {
             $layout['sidebar']['width'] = (int) text('Szerokość sidebara (px)', '', $setting['sidebar']['width'] ?? 320);
-
+            $layout['sidebar']['themeToggle'] = confirm('Pozwolić na zwijanie sidebara do wersji minimum tylko z ikonkami?', $setting['sidebar']['themeToggle'] ?? true, 'Tak', 'Nie');
+            $layout['sidebar']['minimal'] = confirm('Domyślna wersja sidebaru', $setting['sidebar']['minimal'] ?? true, 'Zwinięta (minimalna)', 'Rozwinięta (pełna)');
             $layout['sidebar']['component'] = $this->getComponent('Komponent główny',$setting['sidebar']['component'] ?? ['name' => 'NavigationVertical']);
 
             $layout['sidebar']['position'] = select(
@@ -67,7 +89,7 @@ class LayoutCommand extends Command
             $layout['sidebar']['header']['enabled'] = confirm('Włączyć nagłówek w sidebarze?', $setting['sidebar']['header']['enabled'] ?? true, 'Tak', 'Nie');
             $layout['sidebar']['footer']['enabled'] = confirm('Włączyć stopkę w sidebarze?', $setting['sidebar']['footer']['enabled'] ?? true, 'Tak', 'Nie');
             if ($layout['sidebar']['footer']['enabled']) {
-                $layout['sidebar']['footer']['component']['name'] = $this->getComponent('Komponent w stopce w SideBar?', $setting['sidebar']['component'] ?? ['name' => 'SidebarUser']);
+                $layout['sidebar']['footer']['component'] = $this->getComponent('Komponent w stopce w SideBar?', $setting['sidebar']['footer']['component'] ?? ['name' => 'SidebarUser']);
             }
 
             $layout['sidebar']['top']['enabled'] = confirm('Włączyć dodatkową strefę pod nagłowkiem w sidebarze?', $setting['sidebar']['top']['enabled'] ?? false, 'Tak', 'Nie');

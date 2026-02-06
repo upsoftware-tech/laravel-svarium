@@ -9,6 +9,7 @@ use Upsoftware\Svarium\Models\Navigation;
 use Upsoftware\Svarium\Models\Setting;
 use Upsoftware\Svarium\Services\LayoutService;
 use Upsoftware\Svarium\Services\NavigationService;
+use Tighten\Ziggy\Ziggy;
 
 class HandleInertiaRequests extends Middleware
 {
@@ -36,6 +37,11 @@ class HandleInertiaRequests extends Middleware
                     ];
                 })
             : [],
+            'ziggy' => function () {
+                return array_merge((new Ziggy)->toArray(), [
+                    'location' => request()->url(),
+                ]);
+            },
         ]);
     }
 }

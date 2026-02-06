@@ -45,6 +45,6 @@ class ResetController extends Controller
             $session = $authSession->hash;
         }
 
-        return redirect()->route('auth.verification', ['type' => 'reset', 'userAuth' => $session]);
+        return redirect()->route('panel.auth.verification', ['type' => 'reset', 'userAuth' => $session]);
     }
 }

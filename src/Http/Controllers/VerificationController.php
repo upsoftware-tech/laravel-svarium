@@ -30,7 +30,7 @@ class VerificationController extends Controller
             $loginController = new LoginController();
             return $loginController->loginUser($request, $userAuth->user);
         } else if ($type === 'reset') {
-            return redirect()->route('reset.password', ['userAuth' => $userAuth->hash]);
+            return redirect()->route('panel.auth.reset.password', ['userAuth' => $userAuth->hash]);
         }
     }
 }

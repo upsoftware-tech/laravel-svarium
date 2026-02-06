@@ -1,10 +1,10 @@
-import { Icon } from '@iconify/vue';
 import { Link } from '@inertiajs/vue3';
-import { SidebarUser, NavigationVertical } from '@upsoftware_tech/svarium';
+import { SidebarUser, NavigationVertical, SidebarHeader, Icon } from '@upsoftware_tech/svarium';
 
 export const globalComponents = {
     Link,
     Icon,
     SidebarUser,
+    SidebarHeader,
     NavigationVertical,
 };

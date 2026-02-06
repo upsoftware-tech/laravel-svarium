@@ -128,7 +128,7 @@ class LoginController extends Controller
         }
         if ($user->getSetting('otp_status', true, $connection) === true) {
             $userAuth = UserAuth::setToken($user, 'login');
-            return redirect()->route('auth.method', ['type' => 'login', 'userAuth' => $userAuth->hash]);
+            return redirect()->route('panel.auth.method', ['type' => 'login', 'userAuth' => $userAuth->hash]);
         } else {
             return $this->loginUser($request, $user);
         }

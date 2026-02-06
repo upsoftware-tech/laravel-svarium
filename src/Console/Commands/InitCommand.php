@@ -110,7 +110,7 @@ class InitCommand extends CoreCommand
             $config['showRegisterLink'] = true;
             $config['registerLabel'] = $this->ask('Tytuł rejestracji', 'If you don’t have an account');
             $config['registerLinkLabel'] = $this->ask('Tytuł linku rejestracji', 'sign up here');
-            $config['resetLink'] = $this->ask('Link do rejestracji', '/auth/register');
+            $config['resetLink'] = $this->ask('Link do rejestracji', 'panel.auth.reset');
         } else {
             $config['showRegisterLink'] = false;
             $config['registerLabel'] = '';
@@ -121,7 +121,7 @@ class InitCommand extends CoreCommand
         if ($this->confirm('Czy chcesz dodać reset hasła uzytkownika?', true)) {
             $config['showResetLink'] = true;
             $config['resetLabel'] = $this->ask('Tytuł linku resetu hasła', 'Forgot your password?');
-            $config['registerLink'] = $this->ask('Link do resetu hasła', '/auth/reseet');
+            $config['registerLink'] = $this->ask('Link do resetu hasła', 'panel.auth.register');
         } else {
             $config['showResetLink'] = false;
             $config['resetLabel'] = '';
@@ -225,7 +225,7 @@ class InitCommand extends CoreCommand
     {
         $this->updateUserModel();
         $this->updateAppBootstrap();
-        $this->resources(); return;
+        $this->resources();
 
         passthru('php artisan ide-helper:generate');
         passthru('php artisan ide-helper:models -N');
@@ -260,6 +260,7 @@ class InitCommand extends CoreCommand
             '--provider' => "Vinkla\Hashids\HashidsServiceProvider"
         ]);
 
+        passthru('php artisan vendor:publish --tag=upsoftware');
         passthru('php artisan vendor:publish --provider="Spatie\Activitylog\ActivitylogServiceProvider" --tag="activitylog-migrations"');
         passthru('php artisan migrate');
         passthru('php artisan vendor:publish --provider="Spatie\Activitylog\ActivitylogServiceProvider" --tag="activitylog-config"');

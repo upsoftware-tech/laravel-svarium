@@ -36,6 +36,7 @@
         "spatie/laravel-permission": "^6.24",
         "spatie/laravel-translatable": "^6.12",
         "stancl/tenancy": "^3.9",
+        "tightenco/ziggy": "^2.6",
         "barryvdh/laravel-ide-helper": "^3.6"
     }
 }

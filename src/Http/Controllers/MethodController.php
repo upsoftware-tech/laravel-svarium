@@ -45,6 +45,6 @@ class MethodController extends Controller
     public function set(LoginMethodRequest $request, $type, UserAuth $userAuth)
     {
         $userAuth->{'send'.ucfirst($request->method)}($type);
-        return redirect()->route('auth.verification', ['type' => $type, 'userAuth' => $userAuth->hash]);
+        return redirect()->route('panel.auth.verification', ['type' => $type, 'userAuth' => $userAuth->hash]);
     }
 }

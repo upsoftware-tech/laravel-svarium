@@ -36,7 +36,7 @@ class ResetPasswordController extends Controller
         try {
             $user->update(['password' => $request->password]);
             $user->notify(new UserChangePasswordNotify());
-            return redirect()->route('login')->with(['success' => __('The password has been changed.')]);
+            return redirect()->route('panel.auth.login')->with(['success' => __('The password has been changed.')]);
         } catch (\Exception $exception) {
             return back()->with(['error' => 'An error occurred while changing your password. Please try again later.', 'message' => $exception->getMessage()]);
         }
