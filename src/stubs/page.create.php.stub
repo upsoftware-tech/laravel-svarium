@@ -1,0 +1,10 @@
+<?php
+
+namespace App\Svarium\Resources\{{ResourceName}}\Pages;
+
+use Upsoftware\Svarium\Resources\Pages\CreatePage;
+
+class Create{{ResourceName}} extends CreatePage
+{
+
+}

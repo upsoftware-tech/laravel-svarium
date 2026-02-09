@@ -35,7 +35,6 @@ function get_title() {
     return layout()->get_title();
 }
 
-
 function central_connection() {
     if ($forcedConnection = config('svarium.database_connection')) {
         return $forcedConnection;
@@ -63,4 +62,14 @@ function device(): array {
     $array['browserVer'] = $agent->version($array['browser']);
 
     return $array;
+}
+
+function svarium_path($path = ''): string
+{
+    return app_path(implode('/', ['Svarium', $path]));
+}
+
+function svarium_resources($path = ''): string
+{
+    return svarium_path(implode('/', ['Resources', $path]));
 }

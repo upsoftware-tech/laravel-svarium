@@ -29,6 +29,7 @@
         "laravel-lang/common": "^6.7",
         "laravel-lang/locales": "^2.10",
         "laravel/prompts": "^0.3.11",
+        "laravel/socialite": "^5.24",
         "vinkla/hashids": "^13.0",
         "nativephp/mobile": "^3.0",
         "psr/http-message": "^1.1",

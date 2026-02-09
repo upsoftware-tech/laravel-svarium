@@ -11,6 +11,7 @@ use Upsoftware\Svarium\Console\Commands\GenerateLangJson;
 use Upsoftware\Svarium\Console\Commands\InitCommand;
 use Upsoftware\Svarium\Console\Commands\LayoutCommand;
 use Upsoftware\Svarium\Console\Commands\LoginSocialCommand;
+use Upsoftware\Svarium\Console\Commands\MakeResource;
 use Upsoftware\Svarium\Console\Commands\MenuAddCommand;
 use Upsoftware\Svarium\Console\Commands\MergeLangCommand;
 use Upsoftware\Svarium\Console\Commands\SortLanguageCommand;
@@ -62,6 +63,7 @@ class SvariumServiceProvider extends ServiceProvider
                 SortLanguageCommand::class,
                 MenuAddCommand::class,
                 LayoutCommand::class,
+                MakeResource::class,
             ]);
         }
 

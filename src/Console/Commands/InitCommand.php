@@ -136,11 +136,13 @@ class InitCommand extends CoreCommand
         $app_ts_stub = __DIR__ . '/../../stubs/app.ts.stub';
         $app_css_stub = __DIR__ . '/../../stubs/app.css.stub';
         $routes_web_stub = __DIR__ . '/../../stubs/routes.web.stub';
+        $app_blade_php_stub = __DIR__ . '/../../stubs/app.blade.php.stub';
 
         $APP_NAME = env('APP_NAME');
 
         $resource_js = resource_path('js');
         $resource_css = resource_path('css');
+        $resource_views = resource_path('views');
         $routes = base_path('routes');
 
 
@@ -180,29 +182,40 @@ class InitCommand extends CoreCommand
 
 
         if(file_exists($app_css_stub)) {
-            $tailwindColor = select('Wybierz kolor podstawowy jasny (primary)', $this->tailwindColors());
-            $tailwindColorPalette = select('Wybierz odcień', [50,100,200,300,400,500,600,700,800,900,950]);
-            $palette = $this->tailwindPalette();
-            $PRIMARY = $palette[$tailwindColor][$tailwindColorPalette];
-
-            $sameColor = confirm('Czy ten sam kolor dodać jako kolor ciemny?', true, 'Tak', 'Nie');
-            if ($sameColor) {
-                $PRIMARY_DARK = $PRIMARY;
-                $tailwindColorDark = $tailwindColor;
-                $tailwindColorDarkPalette = $tailwindColorPalette;
-            } else {
-                $tailwindColorDark = select('Wybierz kolor podstawowy ciemny (primary)', $this->tailwindColors());
-                $tailwindColorDarkPalette = select('Wybierz odcień', [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950]);
-                $PRIMARY_DARK = $palette[$tailwindColorDark][$tailwindColorDarkPalette];
+            $app_css_path = $resource_css . '/app.css';
+            $save = true;
+            if (file_exists($app_css_path)) {
+                $force = confirm('Czy nadpisać plik: '.$app_css_path, false, 'Tak', 'Nie');
+                if (!$force) {
+                    $save = false;
+                }
             }
 
-            $this->info('Kolor podstawowy (jasny/light): '.$tailwindColor.' ('.$tailwindColorPalette.') - '.$PRIMARY);
-            $this->info('Kolor podstawowy (ciemny/dark): '.$tailwindColorDark.' ('.$tailwindColorDarkPalette.') - '.$PRIMARY_DARK);
-            $app_css_content = file_get_contents($app_css_stub);
-            $app_css_content = strtr($app_css_content, ['{{PRIMARY}}' => $PRIMARY, '{{PRIMARY_DARK}}' => $PRIMARY_DARK]);
-            $app_css_path = $resource_css . '/app.css';
-            $this->info('Utworzyłem plik: '.$app_css_path);
-            file_put_contents($app_css_path, $app_css_content);
+            if ($save) {
+                $tailwindColor = select('Wybierz kolor podstawowy jasny (primary)', $this->tailwindColors());
+                $tailwindColorPalette = select('Wybierz odcień', [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950]);
+                $palette = $this->tailwindPalette();
+                $PRIMARY = $palette[$tailwindColor][$tailwindColorPalette];
+
+                $sameColor = confirm('Czy ten sam kolor dodać jako kolor ciemny?', true, 'Tak', 'Nie');
+                if ($sameColor) {
+                    $PRIMARY_DARK = $PRIMARY;
+                    $tailwindColorDark = $tailwindColor;
+                    $tailwindColorDarkPalette = $tailwindColorPalette;
+                } else {
+                    $tailwindColorDark = select('Wybierz kolor podstawowy ciemny (primary)', $this->tailwindColors());
+                    $tailwindColorDarkPalette = select('Wybierz odcień', [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950]);
+                    $PRIMARY_DARK = $palette[$tailwindColorDark][$tailwindColorDarkPalette];
+                }
+
+                $this->info('Kolor podstawowy (jasny/light): ' . $tailwindColor . ' (' . $tailwindColorPalette . ') - ' . $PRIMARY);
+                $this->info('Kolor podstawowy (ciemny/dark): ' . $tailwindColorDark . ' (' . $tailwindColorDarkPalette . ') - ' . $PRIMARY_DARK);
+                $app_css_content = file_get_contents($app_css_stub);
+                $app_css_content = strtr($app_css_content, ['{{PRIMARY}}' => $PRIMARY, '{{PRIMARY_DARK}}' => $PRIMARY_DARK]);
+
+                $this->info('Utworzyłem plik: ' . $app_css_path);
+                file_put_contents($app_css_path, $app_css_content);
+            }
         }
 
         if(file_exists($routes_web_stub)) {
@@ -217,6 +230,21 @@ class InitCommand extends CoreCommand
             } else {
                 $this->info('Utworzyłem plik: '.$routes_web_path);
                 file_put_contents($routes_web_path, $routes_web_content);
+            }
+        }
+
+        if(file_exists($app_blade_php_stub)) {
+            $app_blade_php_content = file_get_contents($app_blade_php_stub);
+            $app_blade_php_path = $resource_views . '/app.blade.php';
+            if (file_exists($app_blade_php_path)) {
+                $force = confirm('Czy nadpisać plik: '.$app_blade_php_path, false, 'Tak', 'Nie');
+                if ($force) {
+                    $this->info('Nadpisany plik: '.$app_blade_php_path);
+                    file_put_contents($app_blade_php_path, $app_blade_php_content);
+                }
+            } else {
+                $this->info('Utworzyłem plik: '.$app_blade_php_path);
+                file_put_contents($app_blade_php_path, $app_blade_php_content);
             }
         }
     }
