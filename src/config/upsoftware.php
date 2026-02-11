@@ -9,6 +9,7 @@ return [
         'prefix' => '',
     ],
     'tracking' => [
+        'enabled' => true,
         'user_model' => null,
         'detect_on_login' => true,
         'geoip_provider' => null,
@@ -16,5 +17,11 @@ return [
         'cookie_http_only' => true,
         'session_key' => 'device-tracking',
         'hijacking_detector' => DeviceHijackingDetectorDefault::class,
+    ],
+    'models' => [
+
+    ],
+    'components' => [
+
     ]
 ];

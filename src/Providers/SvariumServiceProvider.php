@@ -3,7 +3,6 @@
 namespace Upsoftware\Svarium\Providers;
 
 use Illuminate\Routing\Router;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
@@ -19,13 +18,12 @@ use Upsoftware\Svarium\Console\Commands\SortLanguageCommand;
 use Upsoftware\Svarium\Http\Middleware\AuthenticateMiddleware;
 use Upsoftware\Svarium\Services\DeviceTracking\DeviceTracking;
 use Upsoftware\Svarium\Services\LayoutService;
-use Illuminate\Auth\Middleware\Authenticate;
 
 class SvariumServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        $this->app->singleton('layout', function($app) {
+        $this->app->singleton('layout', function ($app) {
             return new LayoutService();
         });
 
@@ -38,26 +36,6 @@ class SvariumServiceProvider extends ServiceProvider
         }
 
         $this->registerHelpers();
-    }
-
-    public function registerHelpers(): void
-    {
-        require_once(__DIR__ . '/../Helpers/index.php');
-
-        $directory = svarium_resources();
-        $subdirectories = collect(File::directories($directory))->map(fn($path) => basename($path));
-
-        foreach ($subdirectories as $subdirectory) {
-            $helperDir = $directory . $subdirectory . DIRECTORY_SEPARATOR . 'Helpers';
-            if (File::isDirectory($helperDir)) {
-                $helpersFiles = File::files($helperDir);
-                foreach ($helpersFiles as $file) {
-                    if ($file->getExtension() === 'php') {
-                        require_once($file->getRealPath());
-                    }
-                }
-            }
-        }
     }
 
     public function boot(Router $router): void
@@ -81,6 +59,36 @@ class SvariumServiceProvider extends ServiceProvider
 
         $this->publishes([__DIR__.'/../config/upsoftware.php' => config_path('upsoftware.php')], 'upsoftware');
 
+        $this->consoleCommands();
+
+        $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
+
+        Route::middleware(['web'])
+            ->namespace('Upsoftware\Svarium\Http\Controllers')
+            ->group(__DIR__.'/../routes/web.php');
+    }
+
+    public function registerHelpers(): void
+    {
+        require_once(__DIR__ . '/../Helpers/index.php');
+
+        $directory = svarium_resources();
+        $subdirectories = collect(File::directories($directory))->map(fn($path) => basename($path));
+
+        foreach ($subdirectories as $subdirectory) {
+            $helperDir = $directory . $subdirectory . DIRECTORY_SEPARATOR . 'Helpers';
+            if (File::isDirectory($helperDir)) {
+                $helpersFiles = File::files($helperDir);
+                foreach ($helpersFiles as $file) {
+                    if ($file->getExtension() === 'php') {
+                        require_once($file->getRealPath());
+                    }
+                }
+            }
+        }
+    }
+
+    public function consoleCommands(): void {
         if ($this->app->runningInConsole()) {
             $this->commands([
                 InitCommand::class,
@@ -94,16 +102,5 @@ class SvariumServiceProvider extends ServiceProvider
                 MakeResource::class,
             ]);
         }
-
-        $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
-
-        Route::middleware(['web'])
-            ->namespace('Upsoftware\Svarium\Http\Controllers')
-            ->group(__DIR__.'/../routes/web.php');
-    }
-
-    protected function resolveLoginRoute(Request $request): string
-    {
-        return Route::has('login') ? route('login') : route('login.panel');
     }
 }
