@@ -3,7 +3,6 @@
 namespace Upsoftware\Svarium\Console\Commands;
 
 use Illuminate\Console\Command;
-use Upsoftware\Svarium\Models\Setting;
 use Upsoftware\Svarium\Traits\HasSortCommand;
 
 class SortLanguageCommand extends Command
@@ -14,11 +13,19 @@ class SortLanguageCommand extends Command
 
     protected $description = 'Sortowanie języków';
 
+    protected $settingModel;
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->settingModel = config('svarium.models.setting', \Upsoftware\Svarium\Models\Setting::class);
+    }
+
     public function handle()
     {
-        $locales = Setting::getSettingGlobal('locales');
+        $locales = $this->settingModel::getSettingGlobal('locales');
         $locales = $this->sequentialSort($locales);
 
-        Setting::setSettingGlobal('locales', $locales, true);
+        $this->settingModel::setSettingGlobal('locales', $locales, true);
     }
 }

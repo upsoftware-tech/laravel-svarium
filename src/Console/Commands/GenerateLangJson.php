@@ -4,7 +4,6 @@ namespace Upsoftware\Svarium\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
-use Illuminate\Support\Arr;
 
 class GenerateLangJson extends Command
 {

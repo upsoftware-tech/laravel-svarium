@@ -2,8 +2,6 @@
 
 namespace Upsoftware\Svarium\Console\Commands;
 
-use Illuminate\Support\Facades\File;
-use Upsoftware\Svarium\Models\Setting;
 use Upsoftware\Svarium\Traits\HasTailwindColor;
 use function Laravel\Prompts\confirm;
 use function Laravel\Prompts\select;
@@ -128,7 +126,7 @@ class InitCommand extends CoreCommand
             $config['registerLink'] = '';
         }
 
-        Setting::setSettingGlobal('login.config', $config);
+        $this->settingModel::setSettingGlobal('login.config', $config);
     }
 
     public function resources() {

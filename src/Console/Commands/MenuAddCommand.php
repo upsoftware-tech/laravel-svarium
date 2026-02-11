@@ -4,8 +4,6 @@ namespace Upsoftware\Svarium\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Route;
-use Spatie\Permission\Models\Permission;
-use Upsoftware\Svarium\Models\Navigation;
 use function Laravel\Prompts\select;
 use function Laravel\Prompts\text;
 use function Laravel\Prompts\multiselect;
@@ -16,13 +14,23 @@ class MenuAddCommand extends Command
 
     protected $description = 'Dodaje nowe menu';
 
+    protected $navigationModel;
+    private $permissionModel;
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->navigationModel = config('svarium.models.navigation', \Upsoftware\Svarium\Models\Navigation::class);
+        $this->permissionModel = config('svarium.models.permission', \Spatie\Permission\Models\Permission::class);
+    }
+
     public function handle() {
         $locales = collect(locales())
             ->pluck('label', 'value')
             ->toArray();
 
-        $permissions = Permission::pluck('id', 'name')->toArray();
-        $navigationModel = new Navigation();
+        $permissions = $this->permissionModel::pluck('id', 'name')->toArray();
+        $navigationModel = new $this->navigationModel();
         $menus = $navigationModel->getNavigationOptions();
 
         $routes = collect(Route::getRoutes())
@@ -58,7 +66,7 @@ class MenuAddCommand extends Command
         }
 
         if (count($menus) <= 1) {
-            Navigation::create($navigation);
+            $this->navigationModel::create($navigation);
             $this->info('Menu zostało dodane');
             return;
         }
@@ -67,7 +75,7 @@ class MenuAddCommand extends Command
 
         if ($navigation["parent_id"] === '') {
             $navigation["parent_id"] = NULL;
-            Navigation::create($navigation);
+            $this->navigationModel::create($navigation);
             $this->info('Menu zostało dodane');
             return;
         }
@@ -79,6 +87,6 @@ class MenuAddCommand extends Command
         }
 
         print_r($navigation);
-        Navigation::create($navigation);
+        $this->navigationModel::create($navigation);
     }
 }

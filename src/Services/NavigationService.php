@@ -2,7 +2,6 @@
 
 namespace Upsoftware\Svarium\Services;
 
-use Upsoftware\Svarium\Models\Navigation;
 use Illuminate\Support\Collection;
 
 class NavigationService
@@ -19,12 +18,18 @@ class NavigationService
         return new static();
     }
 
+    protected function getModelClass(): string
+    {
+        return config('svarium.models.navigation', \Upsoftware\Svarium\Models\Navigation::class);
+    }
+
     /**
      * Pobiera drzewo z bazy danych i opcjonalnie łączy je z elementami statycznymi.
      */
     public function getTree(string|int $id = null): array
     {
-        $query = Navigation::with('children')
+        $modelClass = $this->getModelClass();
+        $query = $modelClass::with('children')
             ->where('is_active', true)
             ->orderBy('order');
 

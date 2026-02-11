@@ -2,13 +2,11 @@
 
 namespace Upsoftware\Svarium\Console\Commands;
 
-use Upsoftware\Svarium\Models\Setting;
 use function Laravel\Prompts\multiselect;
 use function Laravel\Prompts\select;
 
 class LoginSocialCommand extends CoreCommand
 {
-
     protected $signature = 'svarium:login.socials';
 
     protected $description = 'Iniciuje aplikację (dodaje niezbędną konfigurację)';
@@ -131,7 +129,7 @@ class LoginSocialCommand extends CoreCommand
             'zoom'          => 'Zoom',
         ];
 
-        $setting = Setting::getSettingGlobal('login.config', []);
+        $setting = $this->settingModel::getSettingGlobal('login.config', []);
 
         $socials = $setting["socials"] ?? [];
         $cols = $setting["cols"] ?? 2;
@@ -233,7 +231,7 @@ class LoginSocialCommand extends CoreCommand
 
             $orLabel = $this->ask('Tytuł nad logami logowania z Social Media', $orLabel);
 
-            Setting::setSettingGlobal('login.config', [
+            $this->settingModel::setSettingGlobal('login.config', [
                 'socials' => $items,
                 'cols' => $cols,
                 'minimal' => $minimal === 'true',

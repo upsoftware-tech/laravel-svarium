@@ -7,6 +7,14 @@ use Illuminate\Support\Facades\File;
 
 class CoreCommand extends Command
 {
+    protected $settingModel;
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->settingModel = config('svarium.models.setting', \Upsoftware\Svarium\Models\Setting::class);
+    }
+
     protected function updateEnvFile(string $key, string $value, $force = false, $newGroup = false): void
     {
         $envPath = base_path('.env');

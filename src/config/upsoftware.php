@@ -19,7 +19,18 @@ return [
         'hijacking_detector' => DeviceHijackingDetectorDefault::class,
     ],
     'models' => [
-
+        'activity' => \Upsoftware\Svarium\Models\Activity::class,
+        'device' => \Upsoftware\Svarium\Models\Device::class,
+        'device_user' => \Upsoftware\Svarium\Models\DeviceUser::class,
+        'model_has_role' => \Upsoftware\Svarium\Models\ModelHasRole::class,
+        'navigation' => \Upsoftware\Svarium\Models\Navigation::class,
+        'permission' => \Spatie\Permission\Models\Permission::class,
+        'role' => \Upsoftware\Svarium\Models\Role::class,
+        'setting' => \Upsoftware\Svarium\Models\Setting::class,
+        'tenant' => \Upsoftware\Svarium\Models\Tenant::class,
+        'user' => \Upsoftware\Svarium\Models\User::class,
+        'user_auth' => \Upsoftware\Svarium\Models\UserAuth::class,
+        'user_auth_code' => \Upsoftware\Svarium\Models\UserAuthCode::class,
     ],
     'components' => [
 

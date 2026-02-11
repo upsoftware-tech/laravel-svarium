@@ -4,7 +4,6 @@ namespace Upsoftware\Svarium\Console\Commands;
 
 use Illuminate\Console\Command;
 use LaravelLang\Locales\Facades\Locales;
-use Upsoftware\Svarium\Models\Setting;
 use function Laravel\Prompts\select;
 
 class AddLanguageCommand extends Command
@@ -15,6 +14,7 @@ class AddLanguageCommand extends Command
 
     public function handle()
     {
+        $settingModel = config('svarium.models.setting', \Upsoftware\Svarium\Models\Setting::class);
         $lang = $this->argument('lang');
 
         $locales = [];
@@ -42,7 +42,7 @@ class AddLanguageCommand extends Command
             passthru("php artisan svarium:lang.prepare $lang");
             passthru("php artisan svarium:lang.merge $lang");
 
-            Setting::setSettingGlobal('locales', [$lang => $locale_data]);
+            $settingModel::setSettingGlobal('locales', [$lang => $locale_data]);
         }
     }
 }

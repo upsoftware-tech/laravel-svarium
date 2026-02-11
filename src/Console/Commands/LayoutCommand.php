@@ -3,8 +3,6 @@
 namespace Upsoftware\Svarium\Console\Commands;
 
 use Illuminate\Console\Command;
-use Upsoftware\Svarium\Models\Navigation;
-use Upsoftware\Svarium\Models\Setting;
 use Upsoftware\Svarium\Traits\HasTailwindColor;
 use function Laravel\Prompts\confirm;
 use function Laravel\Prompts\select;
@@ -13,6 +11,16 @@ use function Laravel\Prompts\text;
 class LayoutCommand extends Command
 {
     use HasTailwindColor;
+
+    protected $settingModel;
+    protected $navigationModel;
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->settingModel = config('svarium.models.setting', \Upsoftware\Svarium\Models\Setting::class);
+        $this->navigationModel = config('svarium.models.navigation', \Upsoftware\Svarium\Models\Navigation::class);
+    }
 
     protected $signature = 'svarium:layout';
 
@@ -29,7 +37,7 @@ class LayoutCommand extends Command
 
         $props = [];
         if ($componentName === 'NavigationVertical') {
-            $navigations = Navigation::whereNull('parent_id')->orderBy('label')->get()->mapWithKeys(function($item) { return [$item->id => $item->label]; })->toArray();
+            $navigations = $this->navigationModel::whereNull('parent_id')->orderBy('label')->get()->mapWithKeys(function($item) { return [$item->id => $item->label]; })->toArray();
             $props['navigation_id'] = select('Wybierz menu nawigacyjne', array_merge(['' => 'Pomiń - nie dodawaj menu'], $navigations), $component["props"]["navigation_id"] ?? '');
         }
 
@@ -62,7 +70,7 @@ class LayoutCommand extends Command
 
     public function handle()
     {
-        $setting = Setting::getSettingGlobal('layout');
+        $setting = $this->settingModel::getSettingGlobal('layout');
 
         $layout['theme']['enabled'] = confirm('Włączyć tryb jasny i ciemny?', $setting['theme']['enabled'] ?? false, 'Tak', 'Nie');
 
@@ -122,6 +130,6 @@ class LayoutCommand extends Command
         $layout['footer']['enabled'] = confirm('Włączyć stopkę strony (dół strony)?', false, 'Tak', 'Nie');
 
         print_r($layout);
-        Setting::setSettingGlobal('layout', $layout);
+        $this->settingModel::setSettingGlobal('layout', $layout);
     }
 }
