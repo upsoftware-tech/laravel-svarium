@@ -36,24 +36,32 @@ class SvariumServiceProvider extends ServiceProvider
         if (config('upsoftware.tracking.detect_on_login')) {
             $this->app->register(EventServiceProvider::class);
         }
+
+        $this->registerHelpers();
+    }
+
+    public function registerHelpers(): void
+    {
+        require_once(__DIR__ . '/../Helpers/index.php');
+
+        $directory = svarium_resources();
+        $subdirectories = collect(File::directories($directory))->map(fn($path) => basename($path));
+
+        foreach ($subdirectories as $subdirectory) {
+            $helperDir = $directory . $subdirectory . DIRECTORY_SEPARATOR . 'Helpers';
+            if (File::isDirectory($helperDir)) {
+                $helpersFiles = File::files($helperDir);
+                foreach ($helpersFiles as $file) {
+                    if ($file->getExtension() === 'php') {
+                        require_once($file->getRealPath());
+                    }
+                }
+            }
+        }
     }
 
     public function boot(Router $router): void
     {
-
-        require_once(__DIR__ . '/../Helpers/index.php');
-
-        $directory = svarium_resources();
-        $subdirectories = collect(File::directories($directory))->map(fn($path) => basename($path))->toArray();
-        foreach ($subdirectories as $subdirectory) {
-            $helperDir = $directory . $subdirectory . DIRECTORY_SEPARATOR . 'Helpers';
-            $helpersFile = collect(File::files($helperDir))->map(fn($path) => basename($path))->toArray();
-            foreach($helpersFile as $helperFile) {
-                $helperPath = $helperDir . DIRECTORY_SEPARATOR . $helperFile;
-                require_once($helperPath);
-            }
-        }
-
         $router->aliasMiddleware('auth.panel', AuthenticateMiddleware::class);
 
         $this->app->booted(function () {
