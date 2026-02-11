@@ -2,6 +2,7 @@
 
 namespace Upsoftware\Svarium\Resources\Pages;
 
+use Illuminate\Support\Facades\Cache;
 use Upsoftware\Svarium\Resources\Enums\PagePath;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
@@ -15,6 +16,9 @@ abstract class BasePage
     protected static ?string $page = null;
     protected static ?string $method = 'get';
     protected static ?string $action = '__invoke';
+    protected static ?string $routePath = null;
+    protected static ?array $routeWhereIn = [];
+    protected ?array $request = [];
 
     /**
      * @throws \Exception
@@ -23,6 +27,13 @@ abstract class BasePage
         if (!static::$resource) {
             static::$resource = static::getResource();
         }
+
+        $route = request()->route();
+        $params = array_merge(
+            request()->all(),
+            $route->parameters()
+        );
+        $this->request = $params;
     }
 
     public static function getPage(): string
@@ -42,6 +53,29 @@ abstract class BasePage
     public static function getAction(): string
     {
         return static::$action;
+    }
+
+    public static function getRoutePath(): string|null
+    {
+        return static::$routePath;
+    }
+
+    public static function getRouteWhereIn(): array
+    {
+        $cacheKey = 'route_where_in_' . Str::snake(class_basename(static::class));
+        return Cache::remember($cacheKey, 3600, function () {
+            $staticWhere = static::$routeWhereIn ?? [];
+            if (isset($staticWhere[0]) && is_array($staticWhere[0])) {
+                $staticWhere = $staticWhere[0];
+            }
+
+            $dynamicWhere = [];
+            if (method_exists(static::class, 'setRouteWhereIn')) {
+                $dynamicWhere = static::setRouteWhereIn();
+            }
+
+            return array_merge($staticWhere, $dynamicWhere);
+        });
     }
 
     public static function getRouteName(): string
@@ -86,8 +120,14 @@ abstract class BasePage
         return $schemaClass::make()->render(static::getRouteName());
     }
 
-    public function __invoke(...$params): Response
+    public function request(string $param, $default = null) : string|null
     {
-        return Inertia::render(static::getPage());
+        return $this->request[$param] ?? $default;
     }
+
+    public function __invoke(...$params): mixed
+    {
+
+    }
+
 }

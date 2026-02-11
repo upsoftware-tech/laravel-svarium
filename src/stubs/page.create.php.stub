@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Svarium\Resources\{{ResourceName}}\Pages;
+namespace App\Svarium\Resources\{{ResourceName}}\Pages\Panel;
 
-use Upsoftware\Svarium\Resources\Pages\CreatePage;
+use Upsoftware\Svarium\Resources\Pages\Panel\CreatePage;
 
 class Create{{ResourceName}} extends CreatePage
 {

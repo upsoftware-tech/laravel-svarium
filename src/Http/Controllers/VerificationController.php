@@ -9,18 +9,19 @@ use Upsoftware\Svarium\Models\UserAuth;
 
 class VerificationController extends Controller
 {
-    public function init($type, UserAuth $userAuth) {
-        $data = [];
-        $data['session'] = $userAuth->hash;
+    public function init($type, $userAuth) {
+        $data['session'] = $userAuth;
         $data['type'] = $type;
         $data['remember'] = $type === 'login';
 
         return inertia('Auth/Verification', $data);
     }
 
-    public function set(Request $request, $type, UserAuth $userAuth)
+    public function set(Request $request, $type, $userAuth)
     {
-        if (!$userAuth->verifyCode($request->code)) {
+        $userAuthItem = UserAuth::byHash($userAuth);
+
+        if (!$userAuthItem || !$userAuthItem->verifyCode($request->code)) {
             throw ValidationException::withMessages([
                 'code' => [__('svarium::messages.Invalid verification code')],
             ]);
@@ -28,9 +29,9 @@ class VerificationController extends Controller
 
         if ($type === 'login') {
             $loginController = new LoginController();
-            return $loginController->loginUser($request, $userAuth->user);
+            return $loginController->loginUser($request, $userAuthItem->user);
         } else if ($type === 'reset') {
-            return redirect()->route('panel.auth.reset.password', ['userAuth' => $userAuth->hash]);
+            return redirect()->route('panel.auth.reset.password', ['userAuth' => $userAuthItem->hash]);
         }
     }
 }

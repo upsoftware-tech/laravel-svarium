@@ -73,3 +73,11 @@ function svarium_resources($path = ''): string
 {
     return svarium_path(implode('/', ['Resources', $path]));
 }
+
+function pluck(string $modelClass, string $value, ?string $key = null): array
+{
+    if (!class_exists($modelClass)) {
+        return [];
+    }
+    return $modelClass::pluck($value, $key)->toArray();
+}

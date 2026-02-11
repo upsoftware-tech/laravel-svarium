@@ -29,6 +29,13 @@ class HandleInertiaRequests extends Middleware
                 'info' => fn () => $request->session()->get('info'),
                 'message' => fn () => $request->session()->get('message'),
             ],
+            'alert' => [
+                'success' => fn () => $request->session()->get('alert_success'),
+                'error' => fn () => $request->session()->get('alert_error'),
+                'warning' => fn () => $request->session()->get('alert_warning'),
+                'info' => fn () => $request->session()->get('alert_info'),
+                'message' => fn () => $request->session()->get('alert_message'),
+            ],
             'setting' => Setting::getSettingGlobal('layout'),
             'navigation' => Auth::check() ?
                 Navigation::whereNull('parent_id')->get()->mapWithKeys(function($navigation) {

@@ -21,30 +21,53 @@ if (File::exists($resourceDir)) {
     foreach ($directories as $path) {
         $resourceName = basename($path);
 
-        $resourceName = basename($path);
         $className = "App\\Svarium\\Resources\\{$resourceName}\\{$resourceName}Resource";
 
         if (class_exists($className)) {
             $routeName = $className::getRouteName();
             $pages = $className::getPages();
 
-            Route::middleware($middleware)->group(function () use ($routeName, $className, $pages) {
-                Route::prefix($routeName)->as("svarium.{$routeName}.")->group(function () use ($className, $routeName, $pages) {
-                    foreach ($pages as $key => $pageClass) {
-                        $method = $pageClass::getMethod();
-                        $routeName = $pageClass::getRouteName();
-                        $action = $pageClass::getAction();
+            foreach ($pages as $key => $page) {
+                $pageClass = $page["className"];
+                $pageArea = $page["area"];
+                $routePath = $page["route"];
+                $method = $pageClass::getMethod();
+                $routePageName = $pageClass::getRouteName();
+                $action = $pageClass::getAction();
+                $whereIn = $page["routeWhereIn"] ?? [];
 
-                        $url = ($key === 'index') ? '/' : '/' . $routeName;
+                $route = [config('upsoftware.panel.prefix'), $routeName, $url = ($key === 'index') ? '' : $routePageName];
+                $route_path = implode('/', $route);
+                if (str_starts_with($route_path, '/')) {
+                    $route_path = substr($route_path, 1);
+                }
+                $route_name = 'svarium.' . strtr($route_path, ['/' => '.']);
+                $addMiddleware = [];
+                if ($pageArea === "Panel") {
+                    $addMiddleware[] = "auth";
+                }
+                $pageMiddleware = array_merge($middleware, $addMiddleware);
+                if ($routePath) {
+                    $route_path = $routePath;
+                }
 
-                        if (in_array($key, ['edit', 'update', 'delete', 'restore', 'duplicate'])) {
-                            $url .= '/{record}';
+                Route::$method($route_path, [$pageClass, $action])
+                    ->middleware($pageMiddleware)
+                    ->name($route_name)
+                    ->when(!empty($whereIn), function ($route) use ($whereIn) {
+                        if (!Arr::isAssoc($whereIn) && is_array(Arr::first($whereIn))) {
+                            $whereIn = Arr::first($whereIn);
                         }
 
-                        Route::$method($url, [$pageClass, $action])->name($key);
-                    }
-                });
-            });
+                        foreach ($whereIn as $parameter => $values) {
+                            if (is_string($parameter)) {
+                                $route->whereIn($parameter, (array) $values);
+                            }
+                        }
+
+                        return $route;
+                    });
+            }
         }
     }
 }

@@ -1,9 +1,10 @@
 <?php
 
-namespace Upsoftware\Svarium\Resources\Pages;
+namespace Upsoftware\Svarium\Resources\Pages\Panel;
 
 use Inertia\Inertia;
 use Inertia\Response;
+use Upsoftware\Svarium\Resources\Pages\BasePage;
 
 abstract class CreatePage extends BasePage
 {

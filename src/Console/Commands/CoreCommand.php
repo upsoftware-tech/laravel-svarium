@@ -51,38 +51,54 @@ class CoreCommand extends Command
             return "env('$key')";
         }
 
+        if (str_ends_with($value, '::class')) {
+            // Zwracamy czysty string bez opakowywania go w var_export (bez apostrofów)
+            // Trim na wypadek, gdyby ktoś przekazał '\Klasa::class' w apostrofach
+            return trim($value, "'\"");
+        }
+
         return var_export($value, true);
     }
 
-    protected function addConfigKey(string $path, string $key, mixed $value): ?bool
+    protected function addConfigKey(string $path, string $key, mixed $value, $force = false): ?bool
     {
-        $configPath = config_path($path);
+        $configPath = config_path($path); // Zakładam dodanie .php jeśli brakuje
 
         if (! File::exists($configPath)) {
+            $this->error("Plik konfiguracyjny $path nie istnieje.");
             return false;
         }
 
         $content = File::get($configPath);
-
-        if (str_contains($content, "'$key' =>")) {
-            $this->comment("Klucz '$key' już istnieje.");
-            return false;
-        }
-
         $formattedValue = $this->formatConfigValue($value);
 
-        $pattern = "/\n\];\s*$/";
-        $replacement = "\n\n    '$key' => $formattedValue,\n];";
+        if (str_contains($content, "'$key' =>")) {
+            if (! $force) {
+                $this->comment("Klucz '$key' już istnieje. Użyj force, aby nadpisać.");
+                return false;
+            }
 
-        $newContent = preg_replace($pattern, $replacement, $content, 1);
+            $quotedKey = preg_quote($key, '/');
+            $pattern = '/([\'"]' . $quotedKey . '[\'"]\s*=>\s*).*?(,?\n)/';
+            $replacement = "$1$formattedValue$2";
+            $newContent = preg_replace($pattern, $replacement, $content);
+
+            $this->comment("Zaktualizowano (force) klucz '$key' w $path.");
+        } else {
+            // Logika DODAWANIA: Wstawianie przed zamknięciem tablicy
+            $pattern = "/\n\];\s*$/";
+            $replacement = "\n\n    '$key' => $formattedValue,\n];";
+            $newContent = preg_replace($pattern, $replacement, $content, 1);
+
+            $this->comment("Dodano klucz '$key' do $path.");
+        }
 
         if ($newContent === null || $newContent === $content) {
-            $this->error("Nie udało się dodać klucza '$key'.");
+            $this->error("Nie udało się zmodyfikować klucza '$key'.");
             return false;
         }
 
         File::put($configPath, $newContent);
-        $this->comment("Dodano klucz '$key' do $path");
 
         return true;
     }

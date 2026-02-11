@@ -51,7 +51,7 @@ class InitCommand extends CoreCommand
         $traits = [
             'HasRoles'   => 'Spatie\Permission\Traits\HasRoles',
             'HasSetting' => 'Upsoftware\Svarium\Traits\HasSetting',
-            'UseDevices' => 'IvanoMatteo\LaravelDeviceTracking\Traits\UseDevices',
+            'UseDevices' => 'Upsoftware\Svarium\Traits\UseDevices',
         ];
 
         foreach ($traits as $name => $namespace) {
@@ -134,6 +134,7 @@ class InitCommand extends CoreCommand
     public function resources() {
         $component_ts_stub = __DIR__ . '/../../stubs/components.ts.stub';
         $app_ts_stub = __DIR__ . '/../../stubs/app.ts.stub';
+        $resolver_ts_stub = __DIR__ . '/../../stubs/resolver.ts.stub';
         $app_css_stub = __DIR__ . '/../../stubs/app.css.stub';
         $routes_web_stub = __DIR__ . '/../../stubs/routes.web.stub';
         $app_blade_php_stub = __DIR__ . '/../../stubs/app.blade.php.stub';
@@ -180,6 +181,22 @@ class InitCommand extends CoreCommand
             }
         }
 
+        if(file_exists($resolver_ts_stub)) {
+            $save = true;
+            $resolver_ts_content = file_get_contents($resolver_ts_stub);
+            $resolver_ts_path = $resource_js . '/resolver.ts';
+            if (file_exists($resolver_ts_path)) {
+                $force = confirm('Czy nadpisać plik: '.$resolver_ts_path, false, 'Tak', 'Nie');
+                if (!$force) {
+                    $save = false;
+                }
+            }
+
+            if ($save) {
+                $this->info('Utworzyłem plik: '.$resolver_ts_path);
+                file_put_contents($resolver_ts_path, $resolver_ts_content);
+            }
+        }
 
         if(file_exists($app_css_stub)) {
             $app_css_path = $resource_css . '/app.css';
@@ -259,20 +276,6 @@ class InitCommand extends CoreCommand
         passthru('php artisan ide-helper:models -N');
         passthru('php artisan ide-helper:meta');
 
-        $this->info('Publikowanie migracji Device Tracking...');
-        $this->call('vendor:publish', [
-            '--provider' => "IvanoMatteo\\LaravelDeviceTracking\\LaravelDeviceTrackingServiceProvider",
-            '--tag' => "migrations"
-        ]);
-
-        passthru('php artisan migrate');
-
-        $this->info('Publikowanie konfiguracji Device Tracking...');
-        $this->call('vendor:publish', [
-            '--provider' => "IvanoMatteo\\LaravelDeviceTracking\\LaravelDeviceTrackingServiceProvider",
-            '--tag' => "config"
-        ]);
-
         $this->info('Publikowanie Spatie Permission...');
         $this->call('vendor:publish', [
             '--provider' => "Spatie\\Permission\\PermissionServiceProvider"
@@ -290,8 +293,9 @@ class InitCommand extends CoreCommand
 
         passthru('php artisan vendor:publish --tag=upsoftware');
         passthru('php artisan vendor:publish --provider="Spatie\Activitylog\ActivitylogServiceProvider" --tag="activitylog-migrations"');
-        passthru('php artisan migrate');
         passthru('php artisan vendor:publish --provider="Spatie\Activitylog\ActivitylogServiceProvider" --tag="activitylog-config"');
+
+        $this->addConfigKey('activitylog.php', 'activity_model', '\Upsoftware\Svarium\Models\Activity::class', true);
 
         if ($this->confirm('Czy opublikować zasoby konfiguracyjne Tenancy?', false)) {
             $this->info('Publikowanie Hashids...');
@@ -304,6 +308,8 @@ class InitCommand extends CoreCommand
             }
         }
 
+
+        passthru('php artisan migrate');
         passthru("php artisan native:install");
 
         $currentLocale = config('app.locale');

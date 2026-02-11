@@ -22,9 +22,12 @@
             }
         }
     },
+    "require-dev": {
+        "orchestra/testbench": "^7.15"
+    },
     "require": {
+        "hisorange/browser-detect": "^4.5",
         "inertiajs/inertia-laravel": "^2.0",
-        "ivanomatteo/laravel-device-tracking": "^1.0",
         "jenssegers/agent": "^2.6",
         "laravel-lang/common": "^6.7",
         "laravel-lang/locales": "^2.10",
@@ -33,6 +36,7 @@
         "vinkla/hashids": "^13.0",
         "nativephp/mobile": "^3.0",
         "psr/http-message": "^1.1",
+        "predis/predis": "^3.3",
         "spatie/laravel-activitylog": "^4.11",
         "spatie/laravel-permission": "^6.24",
         "spatie/laravel-translatable": "^6.12",

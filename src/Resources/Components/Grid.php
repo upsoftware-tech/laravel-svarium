@@ -6,31 +6,22 @@ class Grid extends Block
 {
     public string $component = 'grid';
     public array $cols = [];
-    public int|array|null $grid = null;
-    public int|array|null $gridX = null;
-    public int|array|null $gridY = null;
 
-    public function cols(int|string $col, ?int $value = null): static
+    public function cols(int|string|array $value, ?int $amount = null): static
     {
-        if (is_numeric($col)) {
-            $this->cols['default'] = $col;
-        } else if (is_string($col)) {
-            $this->cols[$col] = $value;
-        }
-        return $this;
+        return $this->handleBreakpointProp('cols', $value, $amount);
     }
-
-    public function props() {
-        $array = [];
-        $array["cols"] = $this->cols;
-        return $array;
+    public function props(): array
+    {
+        $props = parent::props();
+        if (!empty($this->cols)) {
+            $props['cols'] = $this->cols;
+        }
+        return $props;
     }
 
     public function toArray(): array
     {
-        return [
-            ...parent::toArray(),
-            'props' => $this->props()
-        ];
+        return array_merge(parent::toArray(), ['props' => $this->props()]);
     }
 }

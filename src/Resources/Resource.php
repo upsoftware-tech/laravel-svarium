@@ -40,22 +40,34 @@ abstract class Resource
 
         $reflection = new \ReflectionClass(static::class);
         $directory = dirname($reflection->getFileName()) . DIRECTORY_SEPARATOR . 'Pages';
+        $subdirectories = collect(File::directories($directory))
+            ->map(fn($path) => basename($path))
+            ->toArray();
 
-        if (!File::isDirectory($directory)) {
-            return [];
-        }
+        foreach ($subdirectories as $subdirectory) {
+            $directory = dirname($reflection->getFileName()) . DIRECTORY_SEPARATOR . 'Pages' . DIRECTORY_SEPARATOR . $subdirectory;
+            if (!File::isDirectory($directory)) {
+                return [];
+            }
 
-        $files = File::files($directory);
+            $files = File::files($directory);
 
-        foreach ($files as $file) {
-            $className = $file->getBasename('.php');
+            foreach ($files as $file) {
+                $className = $file->getBasename('.php');
+                $fullClassName = $reflection->getNamespaceName() . "\\Pages\\" . $subdirectory . "\\" . $className;
 
-            $fullClassName = $reflection->getNamespaceName() . "\\Pages\\" . $className;
+                if (class_exists($fullClassName)) {
+                    $routeKey = $fullClassName::getRouteName();
+                    $routePath = $fullClassName::getRoutePath();
+                    $routeWhereIn = $fullClassName::getRouteWhereIn();
 
-            if (class_exists($fullClassName)) {
-                $routeKey = $fullClassName::getRouteName();
-
-                $pages[$routeKey] = $fullClassName;
+                    $pages[$routeKey] = [
+                        "area" => $subdirectory,
+                        "className" => $fullClassName,
+                        "route" => $routePath,
+                        "routeWhereIn" => $routeWhereIn,
+                    ];
+                }
             }
         }
 

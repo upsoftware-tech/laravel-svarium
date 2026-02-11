@@ -45,6 +45,6 @@ class ResetController extends Controller
             $session = $authSession->hash;
         }
 
-        return redirect()->route('panel.auth.verification', ['type' => 'reset', 'userAuth' => $session]);
+        return redirect()->route('panel.auth.verification', ['type' => 'reset', 'userAuth' => $session])->with(['alert_info' => ['text' => __('If an account associated with this email address exists, you will receive a message with a verification code'), 'duration' => 0]]);
     }
 }
