@@ -1,5 +1,5 @@
 {
-    "version": "1.0.0+15",
+    "version": "1.0.0+18",
     "name": "upsoftware/svarium",
     "description": "Svarium Commercial System",
     "license": "proprietary",
@@ -44,6 +44,7 @@
         "spatie/laravel-translatable": "^6.12",
         "stancl/tenancy": "^3.9",
         "tightenco/ziggy": "^2.6",
-        "barryvdh/laravel-ide-helper": "^3.6"
+        "barryvdh/laravel-ide-helper": "^3.6",
+        "winter/laravel-config-writer": "^1.2"
     }
 }

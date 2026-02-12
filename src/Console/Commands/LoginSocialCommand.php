@@ -209,9 +209,9 @@ class LoginSocialCommand extends CoreCommand
                     }
                 }
 
-                $this->updateEnvFile(strtoupper($provider).'_CLIENT_ID', '', false, true);
-                $this->updateEnvFile(strtoupper($provider).'_CLIENT_SECRET', '');
-                $this->updateEnvFile(strtoupper($provider).'_REDIRECT_URI', '"${APP_URL}/auth/'.$provider.'/callback"');
+                $this->addEnvKey(strtoupper($provider).'_CLIENT_ID', '', false, true);
+                $this->addEnvKey(strtoupper($provider).'_CLIENT_SECRET', '');
+                $this->addEnvKey(strtoupper($provider).'_REDIRECT_URI', '"${APP_URL}/auth/'.$provider.'/callback"');
 
                 $add = [];
                 if ($provider === 'microsoft') {

@@ -22,8 +22,7 @@ class LoginController extends Controller
         }
 
         $data = get_model('setting')::getSettingGlobal('login.config', []);
-
-        return inertia('Auth/Login', $data);
+        return show('Auth/Login', $data);
     }
 
     public function loginUser(Request $request, User $user) {

@@ -18,7 +18,7 @@ class VerificationController extends Controller
 
     public function set(Request $request, $type, $userAuth)
     {
-        $userAuthItem = get_mode('user_auth')::byHash($userAuth);
+        $userAuthItem = get_model('user_auth')::byHash($userAuth);
 
         if (!$userAuthItem || !$userAuthItem->verifyCode($request->code)) {
             throw ValidationException::withMessages([

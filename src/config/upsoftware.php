@@ -3,6 +3,16 @@
 use \Upsoftware\Svarium\Services\DeviceTracking\DeviceHijackingDetectorDefault;
 
 return [
+    'api' => [
+        'enabled' => true,
+        'prefix' => 'api/v1',
+        'auth' => [
+            'driver' => env('SVARIUM_API_DRIVER', 'sanctum'),
+            'guard' => 'sanctum',
+            'middleware' => ['auth:sanctum'],
+            'custom_handler' => null,
+        ]
+    ],
     'panel' => [
         'enabled' => true,
         'route_prefix' => 'panel.auth',

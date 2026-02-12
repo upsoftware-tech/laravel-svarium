@@ -92,11 +92,20 @@ function pluck(string $modelClass, string $value, ?string $key = null): array
 
 
 function get_model(string $model): string {
-    $models = config('svarium.models', []); // Używamy Twojej nazwy konfiguracji
+    $models = config('upsoftware.models', []); // Używamy Twojej nazwy konfiguracji
 
     if (!isset($models[$model])) {
         throw new \Exception("Model {$model} is not defined in configuration.");
     }
 
     return $models[$model];
+}
+
+
+function show(string|array $dataOrView, ?array $params) {
+    if (is_string($dataOrView)) {
+        return inertia($dataOrView, $params);
+    } else if (is_array($dataOrView)) {
+        return $dataOrView;
+    }
 }

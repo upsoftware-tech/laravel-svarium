@@ -6,6 +6,7 @@ use Illuminate\Routing\Router;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
+use Upsoftware\Svarium\Auth\AuthManager;
 use Upsoftware\Svarium\Console\Commands\AddLanguageCommand;
 use Upsoftware\Svarium\Console\Commands\GenerateLangJson;
 use Upsoftware\Svarium\Console\Commands\InitCommand;
@@ -23,7 +24,7 @@ class SvariumServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        $this->app->singleton('layout', function ($app) {
+        $this->app->singleton('layout', function () {
             return new LayoutService();
         });
 
@@ -34,6 +35,10 @@ class SvariumServiceProvider extends ServiceProvider
         if (config('upsoftware.tracking.detect_on_login')) {
             $this->app->register(EventServiceProvider::class);
         }
+
+        $this->app->singleton('auth-manager', function () {
+            return (new AuthManager())->resolveHandler();
+        });
 
         $this->registerHelpers();
     }
@@ -71,6 +76,10 @@ class SvariumServiceProvider extends ServiceProvider
     public function registerHelpers(): void
     {
         require_once(__DIR__ . '/../Helpers/index.php');
+
+        if (!File::exists(svarium_resources())) {
+            return;
+        }
 
         $directory = svarium_resources();
         $subdirectories = collect(File::directories($directory))->map(fn($path) => basename($path));

@@ -292,8 +292,10 @@ class InitCommand extends CoreCommand
         passthru('php artisan vendor:publish --tag=upsoftware');
         passthru('php artisan vendor:publish --provider="Spatie\Activitylog\ActivitylogServiceProvider" --tag="activitylog-migrations"');
         passthru('php artisan vendor:publish --provider="Spatie\Activitylog\ActivitylogServiceProvider" --tag="activitylog-config"');
+        passthru('php artisan vendor:publish --provider="hisorange\BrowserDetect\ServiceProvider"');
 
         $this->addConfigKey('activitylog.php', 'activity_model', '\Upsoftware\Svarium\Models\Activity::class', true);
+        $this->addConfigKey('browser-detect.php', 'cache.interval', 0, true);
 
         if ($this->confirm('Czy opublikować zasoby konfiguracyjne Tenancy?', false)) {
             $this->info('Publikowanie Hashids...');
@@ -316,7 +318,7 @@ class InitCommand extends CoreCommand
         passthru("php artisan lang:add $selectedLocale");
 
         if ($selectedLocale !== $currentLocale) {
-            $this->updateEnvFile('APP_LOCALE', $selectedLocale, true);
+            $this->addEnvKey('APP_LOCALE', $selectedLocale, true);
             $this->info("Zaktualizowano APP_LOCALE w pliku .env na: $selectedLocale");
 
             config(['app.locale' => $selectedLocale]);
