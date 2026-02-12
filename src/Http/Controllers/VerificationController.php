@@ -5,7 +5,6 @@ namespace Upsoftware\Svarium\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
-use Upsoftware\Svarium\Models\UserAuth;
 
 class VerificationController extends Controller
 {
@@ -19,7 +18,7 @@ class VerificationController extends Controller
 
     public function set(Request $request, $type, $userAuth)
     {
-        $userAuthItem = UserAuth::byHash($userAuth);
+        $userAuthItem = get_mode('user_auth')::byHash($userAuth);
 
         if (!$userAuthItem || !$userAuthItem->verifyCode($request->code)) {
             throw ValidationException::withMessages([

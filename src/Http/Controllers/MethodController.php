@@ -5,7 +5,6 @@ namespace Upsoftware\Svarium\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Upsoftware\Svarium\Http\Requests\LoginMethodRequest;
-use Upsoftware\Svarium\Models\UserAuth;
 
 class MethodController extends Controller
 {
@@ -33,18 +32,23 @@ class MethodController extends Controller
         ];
     }
 
-    public function init($type, UserAuth $userAuth)
+    public function init($type, $userAuth)
     {
         $data = [];
+        $userAuth = get_model('user_auth')::byHash($userAuth);
         $data['session'] = $userAuth->hash;
         $data['verificationMethods'] = $this->getAvailableMethods($userAuth->user);
 
         return inertia('Auth/Method', $data);
     }
 
-    public function set(LoginMethodRequest $request, $type, UserAuth $userAuth)
+    public function set(LoginMethodRequest $request, $type, $userAuth)
     {
-        $userAuth->{'send'.ucfirst($request->method)}($type);
+        $userAuth = get_model('user_auth')::byHash($userAuth);
+        $methodName = 'send' . ucfirst($request->method);
+        if (method_exists($userAuth, $methodName)) {
+            $userAuth->{$methodName}($type);
+        }
         return redirect()->route('panel.auth.verification', ['type' => $type, 'userAuth' => $userAuth->hash]);
     }
 }

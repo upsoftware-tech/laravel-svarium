@@ -6,7 +6,6 @@ use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
-use Upsoftware\Svarium\Models\Device;
 
 class DeviceUpdated
 {
@@ -21,7 +20,7 @@ class DeviceUpdated
      *
      * @return void
      */
-    public function __construct(Device $device, ?Model $user)
+    public function __construct(Model $device, ?Model $user)
     {
         $this->device = $device;
         $this->user = $user;

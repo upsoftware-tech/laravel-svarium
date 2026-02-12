@@ -1,6 +1,8 @@
 {
     "version": "1.0.0+15",
     "name": "upsoftware/svarium",
+    "description": "Svarium Commercial System",
+    "license": "proprietary",
     "autoload": {
         "psr-4": {
             "Upsoftware\\Svarium\\": "src/"

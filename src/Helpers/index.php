@@ -1,7 +1,15 @@
 <?php
 
+/**
+ * Svarium - Commercial Resource Planning System
+ *
+ * @package    Svarium
+ * @author     Upsoftware
+ * @copyright  Copyright (c) 2024, Upsoftware
+ * @license    Proprietary
+ */
+
 use Jenssegers\Agent\Agent;
-use Upsoftware\Svarium\Models\Setting;
 
 if (!function_exists('layout')) {
     function layout() {
@@ -10,7 +18,7 @@ if (!function_exists('layout')) {
 }
 
 function locales() {
-    $locales = Setting::getSettingGlobal('locales', []);
+    $locales = get_model('setting')::getSettingGlobal('locales', []);
     return array_values(array_map(function ($value) {
         $array = [];
         $array["value"] = $value["value"] ?? $value["code"] ?? $value["id"] ?? '';
@@ -80,4 +88,15 @@ function pluck(string $modelClass, string $value, ?string $key = null): array
         return [];
     }
     return $modelClass::pluck($value, $key)->toArray();
+}
+
+
+function get_model(string $model): string {
+    $models = config('svarium.models', []); // Używamy Twojej nazwy konfiguracji
+
+    if (!isset($models[$model])) {
+        throw new \Exception("Model {$model} is not defined in configuration.");
+    }
+
+    return $models[$model];
 }

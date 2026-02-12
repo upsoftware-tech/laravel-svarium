@@ -2,9 +2,7 @@
 
 namespace Upsoftware\Svarium\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\App;
 
 class LocaleController extends Controller
 {

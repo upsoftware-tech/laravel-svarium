@@ -16,7 +16,7 @@ class ResetPasswordController extends Controller
         return inertia('Auth/ResetPassword', $data);
     }
 
-    public function reset(Request $request, UserAuth $userAuth) {
+    public function reset(Request $request, $userAuth) {
         $request->validate([
             'password' => [
                 'required',
@@ -32,6 +32,7 @@ class ResetPasswordController extends Controller
             'password.regex' => 'The password must contain lowercase and uppercase letters, a number, and a special character.',
         ]);
 
+        $userAuth = get_model('user_auth')::byHash($userAuth);
         $user = $userAuth->user;
         try {
             $user->update(['password' => $request->password]);

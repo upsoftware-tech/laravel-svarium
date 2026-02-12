@@ -11,10 +11,7 @@ use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Jenssegers\Agent\Agent;
 use Upsoftware\Svarium\Facades\DeviceTracker;
-use Upsoftware\Svarium\Models\ModelHasRole;
 use App\Models\User;
-use Upsoftware\Svarium\Models\Setting;
-use Upsoftware\Svarium\Models\UserAuth;
 use Upsoftware\Svarium\Notifications\LoginFromNewDeviceNotify;
 
 class LoginController extends Controller
@@ -24,7 +21,7 @@ class LoginController extends Controller
             return redirect('/');
         }
 
-        $data = Setting::getSettingGlobal('login.config', []);
+        $data = get_model('setting')::getSettingGlobal('login.config', []);
 
         return inertia('Auth/Login', $data);
     }
@@ -101,7 +98,7 @@ class LoginController extends Controller
             if (tenant() && tenant()->id) {
                 $tenant_id = tenant()->id;
             }
-            $queryRole = ModelHasRole::where('model_id', $user->id)->where('model_type', 'App\Models\User')->where('status', 1);
+            $queryRole = get_model('model_has_role')::where('model_id', $user->id)->where('model_type', 'App\Models\User')->where('status', 1);
             if (config('tenancy.enabled', false)) {
                 $queryRole->where('tenant_id', $tenant_id);
             }
@@ -127,7 +124,7 @@ class LoginController extends Controller
             }
         }
         if ($user->getSetting('otp_status', true, $connection) === true) {
-            $userAuth = UserAuth::setToken($user, 'login');
+            $userAuth = get_model('user_auth')::setToken($user, 'login');
             return redirect()->route('panel.auth.method', ['type' => 'login', 'userAuth' => $userAuth->hash]);
         } else {
             return $this->loginUser($request, $user);
