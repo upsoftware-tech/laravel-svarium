@@ -82,6 +82,11 @@ function svarium_resources($path = ''): string
     return svarium_path(implode('/', ['Resources', $path]));
 }
 
+function svarium_config($path = ''): string
+{
+    return svarium_path(implode('/', ['Config', $path]));
+}
+
 function pluck(string $modelClass, string $value, ?string $key = null): array
 {
     if (!class_exists($modelClass)) {

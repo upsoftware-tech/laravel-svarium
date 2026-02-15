@@ -3,6 +3,7 @@
 namespace Upsoftware\Svarium\Console\Commands;
 
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\File;
 use Upsoftware\Svarium\Traits\HasTailwindColor;
 use function Laravel\Prompts\confirm;
 use function Laravel\Prompts\select;
@@ -70,6 +71,16 @@ class LayoutCommand extends Command
 
     public function handle()
     {
+        $config_directory = svarium_config();
+        if (!File::isDirectory($config_directory)) {
+            File::makeDirectory($config_directory, 0755, true);
+        }
+        $layout_directory = svarium_config('Layout');
+        if (!File::isDirectory($layout_directory)) {
+            File::makeDirectory($layout_directory, 0755, true);
+        }
+
+        return;
         $setting = $this->settingModel::getSettingGlobal('layout');
 
         $layout['theme']['enabled'] = confirm('Włączyć tryb jasny i ciemny?', $setting['theme']['enabled'] ?? false, 'Tak', 'Nie');

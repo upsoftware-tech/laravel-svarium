@@ -17,11 +17,17 @@ class HandleInertiaRequests extends Middleware
     {
         $setting = [];
 
+        echo '<pre>';
+        print_r($this->layout()); die;
+
         return array_merge(parent::share($request), [
             'locale' => session()->has('locale') ? session()->get('locale') : app()->getLocale(),
             'locales' => Inertia::once(fn () => locales()),
             'workspaces' => Auth::check() && method_exists(Auth::user(), 'getWorkspaces') ? $request->user()->getWorkspaces() : false,
             'title' => fn () => get_title(),
+            'layout' => [
+                'panel' => $this->layout(),
+            ],
             'flash' => [
                 'success' => fn () => $request->session()->get('success'),
                 'error' => fn () => $request->session()->get('error'),
@@ -50,5 +56,9 @@ class HandleInertiaRequests extends Middleware
                 ]);
             },
         ]);
+    }
+
+    public function layout(): array {
+        return layout()->getComponents();
     }
 }
