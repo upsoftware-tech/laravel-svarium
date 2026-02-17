@@ -42,14 +42,16 @@ class MergeLangCommand extends Command
             }
 
             $appContent = [];
-            if (File::exists($appFilePath)) {
-                $appContent = json_decode(File::get($appFilePath), true);
-                if (json_last_error() !== JSON_ERROR_NONE) {
-                    $this->error("Błąd JSON w aplikacji ($filename): " . json_last_error_msg());
-                    continue; // Nie nadpisujemy uszkodzonego pliku
-                }
-            } else {
-                $this->comment("  - Plik nie istnieje w aplikacji, tworzę nowy.");
+            if (!File::exists($appFilePath)) {
+                $this->warn("  - Pominięto ($filename) — język nie istnieje w aplikacji.");
+                continue;
+            }
+
+            $appContent = json_decode(File::get($appFilePath), true);
+
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                $this->error("Błąd JSON w aplikacji ($filename): " . json_last_error_msg());
+                continue;
             }
 
             $mergedContent = array_replace($packageContent ?? [], $appContent ?? []);

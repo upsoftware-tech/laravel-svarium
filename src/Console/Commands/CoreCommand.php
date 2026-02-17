@@ -3,8 +3,8 @@
 namespace Upsoftware\Svarium\Console\Commands;
 
 use Illuminate\Console\Command;
+use Upsoftware\Svarium\Support\QuotedEnvFile;
 use Winter\LaravelConfigWriter\ArrayFile;
-use Winter\LaravelConfigWriter\EnvFile;
 
 class CoreCommand extends Command
 {
@@ -18,7 +18,7 @@ class CoreCommand extends Command
 
     protected function addEnvKey(string $key, mixed $value, $force = false, string|bool $newLine = ''): void
     {
-        $env = EnvFile::open(base_path('.env'));
+        $env = QuotedEnvFile::open(base_path('.env'));
         if ($newLine === true OR $newLine === 'before') {
             $env->addEmptyLine();
         }

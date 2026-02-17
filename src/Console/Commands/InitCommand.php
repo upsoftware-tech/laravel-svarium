@@ -347,6 +347,9 @@ class InitCommand extends CoreCommand
 
         $this->call('svarium:login.socials');
 
+        $app_name = $this->ask('Nazwa aplikacji', env('APP_NAME'));
+        $this->addEnvKey('APP_NAME', $app_name);
+
         $this->addLoginConfiguration();
 
         $this->info('Gotowe!');

@@ -12,6 +12,7 @@ use Upsoftware\Svarium\Console\Commands\GenerateLangJson;
 use Upsoftware\Svarium\Console\Commands\InitCommand;
 use Upsoftware\Svarium\Console\Commands\LayoutCommand;
 use Upsoftware\Svarium\Console\Commands\LoginSocialCommand;
+use Upsoftware\Svarium\Console\Commands\MakePermissionCommand;
 use Upsoftware\Svarium\Console\Commands\MakeResource;
 use Upsoftware\Svarium\Console\Commands\MenuAddCommand;
 use Upsoftware\Svarium\Console\Commands\MergeLangCommand;
@@ -109,6 +110,7 @@ class SvariumServiceProvider extends ServiceProvider
                 MenuAddCommand::class,
                 LayoutCommand::class,
                 MakeResource::class,
+                MakePermissionCommand::class,
             ]);
         }
     }
