@@ -19,16 +19,16 @@ abstract class BasePage
     protected static ?string $routePath = null;
     protected static ?array $routeWhereIn = [];
     protected ?array $request = [];
-    public static ?string $layout;
+    public static ?string $layout = '';
     public static ?string $beforeHeader;
     public static ?string $header = null;
     public static ?string $afterHeader;
-    public static ?string $sidebar;
+    public static ?string $sidebar = '';
     public static ?string $beforeFooter;
-    public static ?string $footer;
+    public static ?string $footer = '';
     public static ?string $afterFooter;
     public static ?string $beforeContent;
-    public static ?string $content;
+    public static ?string $content = '';
     public static ?string $afterContent;
 
     /**

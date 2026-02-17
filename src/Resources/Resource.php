@@ -10,9 +10,24 @@ abstract class Resource
 {
     protected static ?string $model = null;
     protected static ?string $title = null;
+    protected static ?string $pluralTitle = null;
     protected static ?string $routeName = null;
     protected static ?string $tableSchema = null;
     protected static ?string $formSchema = null;
+    protected static ?string $layout = '';
+    protected static string|array $permission = '';
+    protected static string|array $role = '';
+
+    public static function getTitle(): string
+    {
+        return static::$title ?? class_basename(static::$model);
+    }
+
+    public static function getPluralTitle(): string
+    {
+        return __('Specialists');
+    }
+
 
     public static function getModel(): string
     {

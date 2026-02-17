@@ -72,15 +72,18 @@ class LayoutCommand extends Command
     public function handle()
     {
         $config_directory = svarium_config();
-        if (!File::isDirectory($config_directory)) {
-            File::makeDirectory($config_directory, 0755, true);
-        }
         $layout_directory = svarium_config('Layout');
-        if (!File::isDirectory($layout_directory)) {
-            File::makeDirectory($layout_directory, 0755, true);
+        $areas = ['Panel', 'Web'];
+        $components = ['Header', 'Content', 'Footer', 'Sidebar'];
+        foreach ($areas as $area) {
+            foreach ($components as $component) {
+                $componentDir = svarium_config('Layout/' . $area . '/' . $component);
+                if (!File::isDirectory($componentDir)) {
+                    File::makeDirectory($componentDir, 0755, true);
+                }
+            }
         }
 
-        return;
         $setting = $this->settingModel::getSettingGlobal('layout');
 
         $layout['theme']['enabled'] = confirm('Włączyć tryb jasny i ciemny?', $setting['theme']['enabled'] ?? false, 'Tak', 'Nie');

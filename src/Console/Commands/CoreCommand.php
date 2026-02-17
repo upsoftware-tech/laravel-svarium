@@ -32,10 +32,32 @@ class CoreCommand extends Command
     protected function addConfigKey(string $path, string $key, mixed $value, $force = false): void
     {
         $config = ArrayFile::open(config_path($path));
-        if (strpos($value, "::")) {
-            $value = $config->constant($value);
+        if (is_array($value)) {
+            $newValue = [];
+            foreach ($value as $newKey => $val) {
+                if (is_string($val) && str_starts_with($val, '@env')) {
+                    if (str_ends_with($val, '\')')) {
+                        $val = strtr($val, ['\')' => ')']);
+                    }
+                    if (str_starts_with($val, '(\'')) {
+                        $val = strtr($val, ['(\'' => '(']);
+                    }
+                    $val = str_replace('@env', "env", $val);
+                    $val = strtr($val, ["(" => "('", ")" => "')"]);
+                    $newValue[$newKey] = $config->constant($val);
+                }
+                else {
+                    $newValue[$newKey] = $val;
+                }
+            }
+            $config->set([$key => $newValue]);
+        } else {
+            if (strpos($value, "::")) {
+                $value = $config->constant($value);
+            }
+            $config->set($key, $value);
         }
-        $config->set($key, $value);
+
         $config->write();
     }
 }

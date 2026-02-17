@@ -17,8 +17,7 @@ class HandleInertiaRequests extends Middleware
     {
         $setting = [];
 
-        echo '<pre>';
-        print_r($this->layout()); die;
+        //echo '<pre>';print_r($this->layout()); die;
 
         return array_merge(parent::share($request), [
             'locale' => session()->has('locale') ? session()->get('locale') : app()->getLocale(),
@@ -58,7 +57,7 @@ class HandleInertiaRequests extends Middleware
         ]);
     }
 
-    public function layout(): array {
+    public function layout() {
         return layout()->getComponents();
     }
 }

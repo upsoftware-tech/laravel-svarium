@@ -19,6 +19,7 @@ class MakeResource extends Command
     protected string $resourceDirPagesApi;
     protected string $resourceDirSchemas;
     protected string $resourceDirHelpers;
+    protected string $resourceDirComponents;
 
     protected string $resourceName;
     protected string $resourceNamePlural;
@@ -41,6 +42,7 @@ class MakeResource extends Command
         File::makeDirectory($this->resourceDirPagesApi);
         File::makeDirectory($this->resourceDirSchemas);
         File::makeDirectory($this->resourceDirHelpers);
+        File::makeDirectory($this->resourceDirComponents);
     }
 
     public function handle() {
@@ -63,6 +65,7 @@ class MakeResource extends Command
         $this->resourceDirPagesApi = $this->resourceDirPages . DIRECTORY_SEPARATOR . 'Api';
         $this->resourceDirSchemas = $this->resourceDir . DIRECTORY_SEPARATOR . 'Schemas';
         $this->resourceDirHelpers = $this->resourceDir . DIRECTORY_SEPARATOR . 'Helpers';
+        $this->resourceDirComponents = $this->resourceDir . DIRECTORY_SEPARATOR . 'Components';
         $resourceFile = $this->resourceDir . DIRECTORY_SEPARATOR . $resource.'Resource.php';
         $resourcePagePanelCreate = $this->resourceDirPagesPanel . DIRECTORY_SEPARATOR . 'Create'.$this->resourceName.'.php';
         $resourcePagePanelList = $this->resourceDirPagesPanel . DIRECTORY_SEPARATOR . 'List'.$this->resourceNamePlural.'.php';

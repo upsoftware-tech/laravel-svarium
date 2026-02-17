@@ -31,16 +31,11 @@ class LayoutService
         return $this->title;
     }
 
-    public function getComponents() {
-        return [
-            'header' => [],
-            'sidebar' => [],
-            'content' => [],
-            'footer' => [],
-        ];
+    public function getComponents() : mixed {
+        return $this->component();
     }
 
-    public function component(string $component) : mixed
+    public function component(string|array $component = '') : mixed
     {
         $pageClass = Route::current()->getControllerClass();
         $basePageClass = BasePage::class;
@@ -49,9 +44,30 @@ class LayoutService
             if (!class_exists($pageClass)) {
                 throw new \Exception("Component class not found: $pageClass");
             } else {
-                if ($pageClass::${$component} !== null) {
-                    return new $pageClass::${$component};
+                $pageClassParams = explode('\\', $pageClass);
+                $resource = $pageClassParams[3];
+                $resourceClassPath = implode("\\", array_slice($pageClassParams, 0, 4))."\\".$resource."Resource";
+
+                $componentKeys = $component;
+                if ($componentKeys === '') {
+                    $componentKeys = ['header', 'sidebar', 'content', 'footer'];
                 }
+
+                $components = [];
+                $resourceClass = new $resourceClassPath;
+                foreach ($componentKeys as $componentKey) {
+                    $components[$componentKey] = [];
+                    if ($pageClass::${$componentKey} !== null) {
+                        $componentClassPath = $pageClass::${$componentKey};
+                        if ($componentClassPath) {
+                            $componentClass = new $componentClassPath;
+                            $components[$componentKey] = $componentClass->getContent();
+                        }
+                    } else if ($resourceClass::${$componentKey} !== null) {
+                        echo $resourceClass::${$componentKey};
+                    }
+                }
+                return $components;
             }
         }
         return false;
