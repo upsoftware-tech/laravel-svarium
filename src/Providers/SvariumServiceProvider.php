@@ -2,6 +2,7 @@
 
 namespace Upsoftware\Svarium\Providers;
 
+use Illuminate\Console\Command;
 use Illuminate\Routing\Router;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Route;
@@ -25,6 +26,8 @@ class SvariumServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
+        $this->app->register(SvariumPluginAggregateServiceProvider::class);
+
         $this->app->singleton('layout', function () {
             return new LayoutService();
         });
@@ -98,20 +101,48 @@ class SvariumServiceProvider extends ServiceProvider
         }
     }
 
-    public function consoleCommands(): void {
-        if ($this->app->runningInConsole()) {
-            $this->commands([
-                InitCommand::class,
-                LoginSocialCommand::class,
-                GenerateLangJson::class,
-                MergeLangCommand::class,
-                AddLanguageCommand::class,
-                SortLanguageCommand::class,
-                MenuAddCommand::class,
-                LayoutCommand::class,
-                MakeResource::class,
-                MakePermissionCommand::class,
-            ]);
+    protected function discoverCommands(string $path, string $namespace): array
+    {
+        if (!is_dir($path)) return [];
+
+        $classes = [];
+        $exclude = ['CoreCommand'];
+
+        foreach (File::allFiles($path) as $file) {
+            $className = $file->getFilenameWithoutExtension();
+
+            if (in_array($className, $exclude)) {
+                continue;
+            }
+
+            $relativePath = $file->getRelativePathname();
+            $classSuffix = str_replace(
+                [DIRECTORY_SEPARATOR, '.php'],
+                ['\\', ''],
+                $relativePath
+            );
+
+            $class = trim($namespace, '\\') . '\\' . $classSuffix;
+
+            if (class_exists($class)) {
+                $reflection = new \ReflectionClass($class);
+
+                if ($reflection->isInstantiable() && $reflection->isSubclassOf(Command::class)) {
+                    $classes[] = $class;
+                }
+            }
         }
+        return $classes;
+    }
+
+    public function consoleCommands(): void
+    {
+        if (! $this->app->runningInConsole()) {
+            return;
+        }
+
+        $commands = $this->discoverCommands(__DIR__.'/../Console/Commands', 'Upsoftware\\Svarium\\Console\\Commands');
+
+        $this->commands($commands);
     }
 }
