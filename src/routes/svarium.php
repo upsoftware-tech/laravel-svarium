@@ -5,6 +5,7 @@ use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
 use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
 use Upsoftware\Svarium\Http\Middleware\LocaleMiddleware;
 use Upsoftware\Svarium\Http\Middleware\HandleInertiaRequests;
+use Upsoftware\Svarium\Routing\SvariumHttpKernel;
 
 $middleware = ['web'];
 $middleware[] = LocaleMiddleware::class;
@@ -71,4 +72,5 @@ if (File::exists($resourceDir)) {
         }
     }
 }
+
 

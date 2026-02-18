@@ -19,6 +19,10 @@ use Upsoftware\Svarium\Console\Commands\MenuAddCommand;
 use Upsoftware\Svarium\Console\Commands\MergeLangCommand;
 use Upsoftware\Svarium\Console\Commands\SortLanguageCommand;
 use Upsoftware\Svarium\Http\Middleware\AuthenticateMiddleware;
+use Upsoftware\Svarium\Panel\OperationRegistry;
+use Upsoftware\Svarium\Panel\Operation;
+use Upsoftware\Svarium\Panel\PanelRegistry;
+use Upsoftware\Svarium\Routing\SvariumHttpKernel;
 use Upsoftware\Svarium\Services\DeviceTracking\DeviceTracking;
 use Upsoftware\Svarium\Services\LayoutService;
 
@@ -42,6 +46,46 @@ class SvariumServiceProvider extends ServiceProvider
 
         $this->app->singleton('auth-manager', function () {
             return (new AuthManager())->resolveHandler();
+        });
+
+        $this->app->singleton(PanelRegistry::class, function () {
+            $registry = new PanelRegistry();
+
+            foreach (require base_path('app/Svarium/panels.php') as $panel) {
+                $registry->register($panel);
+            }
+
+            return $registry;
+        });
+
+        $this->app->singleton(OperationRegistry::class, function () {
+
+            $registry = new OperationRegistry();
+
+            $path = app_path('Svarium/Panel/Operations');
+
+            if (!is_dir($path)) {
+                return $registry;
+            }
+
+            foreach (File::allFiles($path) as $file) {
+
+                $class = 'App\\Svarium\\Panel\\Operations\\' . $file->getFilenameWithoutExtension();
+
+                if (!class_exists($class)) {
+                    continue;
+                }
+
+                if (!is_subclass_of($class, Operation::class)) {
+                    continue;
+                }
+                $panels = (array) $class::$panels;
+
+                foreach ($panels as $panel) {
+                    $registry->register($panel, $class);
+                }
+            }
+            return $registry;
         });
 
         $this->registerHelpers();
@@ -71,6 +115,8 @@ class SvariumServiceProvider extends ServiceProvider
         $this->consoleCommands();
 
         $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
+
+        Route::any('{path}', SvariumHttpKernel::class)->where('path', '.*');
 
         Route::middleware(['web'])
             ->namespace('Upsoftware\Svarium\Http\Controllers')
