@@ -9,6 +9,22 @@ class Panel
         public ?string $prefix = null,
     ) {}
 
+    public ?string $layout = null;
+    public ?\Closure $layoutBuilder = null;
+    protected array $layoutSlots = [];
+
+    public function layout(string $class): static
+    {
+        $this->layout = $class;
+        return $this;
+    }
+
+    public function layoutUsing(\Closure $builder): static
+    {
+        $this->layoutBuilder = $builder;
+        return $this;
+    }
+
     public static function make(string $name): static
     {
         return new static($name);
@@ -24,5 +40,40 @@ class Panel
     {
         $this->prefix = null;
         return $this;
+    }
+
+    public function header($content): static
+    {
+        $this->layoutSlots['header'] = $content;
+        return $this;
+    }
+
+    public function sidebar($content): static
+    {
+        $this->layoutSlots['sidebar'] = $content;
+        return $this;
+    }
+
+    public function content($content): static
+    {
+        $this->layoutSlots['body'] = $content;
+        return $this;
+    }
+
+    public function aside($content): static
+    {
+        $this->layoutSlots['aside'] = $content;
+        return $this;
+    }
+
+    public function footer($content): static
+    {
+        $this->layoutSlots['footer'] = $content;
+        return $this;
+    }
+
+    public function getLayoutSlots(): array
+    {
+        return $this->layoutSlots;
     }
 }

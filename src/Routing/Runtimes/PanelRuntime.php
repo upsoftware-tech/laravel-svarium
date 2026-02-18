@@ -3,7 +3,7 @@
 namespace Upsoftware\Svarium\Routing\Runtimes;
 
 use Illuminate\Http\Request;
-use Symfony\Component\HttpFoundation\Response;
+use Inertia\Response;
 use Upsoftware\Svarium\Panel\OperationRouter;
 use Upsoftware\Svarium\Routing\Area;
 

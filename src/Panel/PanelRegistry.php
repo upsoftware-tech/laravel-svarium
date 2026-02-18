@@ -8,7 +8,12 @@ class PanelRegistry
 
     public function register(Panel $panel): void
     {
-        $this->panels[] = $panel;
+        $this->panels[$panel->name] = $panel;
+    }
+
+    public function get(string $name): ?Panel
+    {
+        return $this->panels[$name] ?? null;
     }
 
     public function all(): array

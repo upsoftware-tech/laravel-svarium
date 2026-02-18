@@ -2,6 +2,7 @@
 
 namespace Upsoftware\Svarium\Providers;
 
+use App\Models\Page;
 use Illuminate\Console\Command;
 use Illuminate\Routing\Router;
 use Illuminate\Support\Facades\File;
@@ -19,6 +20,7 @@ use Upsoftware\Svarium\Console\Commands\MenuAddCommand;
 use Upsoftware\Svarium\Console\Commands\MergeLangCommand;
 use Upsoftware\Svarium\Console\Commands\SortLanguageCommand;
 use Upsoftware\Svarium\Http\Middleware\AuthenticateMiddleware;
+use Upsoftware\Svarium\Panel\BindingRegistry;
 use Upsoftware\Svarium\Panel\OperationRegistry;
 use Upsoftware\Svarium\Panel\Operation;
 use Upsoftware\Svarium\Panel\PanelRegistry;
@@ -88,6 +90,8 @@ class SvariumServiceProvider extends ServiceProvider
             return $registry;
         });
 
+        $this->app->singleton(BindingRegistry::class);
+
         $this->registerHelpers();
     }
 
@@ -115,6 +119,10 @@ class SvariumServiceProvider extends ServiceProvider
         $this->consoleCommands();
 
         $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
+
+        app(BindingRegistry::class)->bind('page', function ($value) {
+            return Page::findOrFail($value);
+        });
 
         Route::any('{path}', SvariumHttpKernel::class)->where('path', '.*');
 
