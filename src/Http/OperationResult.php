@@ -2,7 +2,7 @@
 
 namespace Upsoftware\Svarium\Http;
 
-use Inertia\Response;
+use Symfony\Component\HttpFoundation\Response;
 
 interface OperationResult
 {

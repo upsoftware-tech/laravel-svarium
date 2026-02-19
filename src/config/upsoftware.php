@@ -3,6 +3,10 @@
 use \Upsoftware\Svarium\Services\DeviceTracking\DeviceHijackingDetectorDefault;
 
 return [
+    'middleware' => [
+        'web' => [],
+        'api' => [],
+    ],
     'api' => [
         'enabled' => true,
         'prefix' => 'api/v1',

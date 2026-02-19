@@ -8,18 +8,37 @@ use Upsoftware\Svarium\UI\Concerns\HasValidation;
 abstract class FieldComponent extends Component
 {
     use HasValidation;
-    protected string $name;
 
-    public function name(string $name): static
+    protected ?string $name = null;
+    protected ?string $label = null;
+
+    public function __construct(?string $name = null)
     {
         $this->name = $name;
-        $this->props['name'] = $name;
 
+        if ($name) {
+            $this->props['name'] = $name;
+        }
+    }
+
+    public static function make(?string $name = null): static
+    {
+        return new static($name);
+    }
+
+    public function getName(): ?string
+    {
+        return $this->name;
+    }
+    public function label(string $label): static
+    {
+        $this->label = $label;
+        $this->props['label'] = $label;
         return $this;
     }
 
-    public function getName(): string
+    public function getLabel(): ?string
     {
-        return $this->name;
+        return $this->label;
     }
 }

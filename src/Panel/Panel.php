@@ -12,10 +12,17 @@ class Panel
     public ?string $layout = null;
     public ?\Closure $layoutBuilder = null;
     protected array $layoutSlots = [];
+    protected array $middleware = [];
 
     public function layout(string $class): static
     {
         $this->layout = $class;
+        return $this;
+    }
+
+    public function middleware(array $middleware): static
+    {
+        $this->middleware = $middleware;
         return $this;
     }
 
@@ -75,5 +82,10 @@ class Panel
     public function getLayoutSlots(): array
     {
         return $this->layoutSlots;
+    }
+
+    public function getMiddleware(): array
+    {
+        return $this->middleware;
     }
 }

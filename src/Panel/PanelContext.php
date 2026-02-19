@@ -9,8 +9,7 @@ use Illuminate\Http\Request;
 class PanelContext
 {
     public array $params = [];
-
-    protected array $validated = [];
+    public array $validated = [];
 
     public function __construct(
         public string $panel,
