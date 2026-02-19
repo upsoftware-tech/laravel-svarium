@@ -72,7 +72,11 @@ class SvariumServiceProvider extends ServiceProvider
 
             foreach (File::allFiles($path) as $file) {
 
-                $class = 'App\\Svarium\\Panel\\Operations\\' . $file->getFilenameWithoutExtension();
+                $relative = $file->getRelativePathname();
+                // Pages/EditPageOperation.php
+
+                $class = 'App\\Svarium\\Panel\\Operations\\' .
+                    str_replace(['/', '.php'], ['\\', ''], $relative);
 
                 if (!class_exists($class)) {
                     continue;
@@ -81,6 +85,7 @@ class SvariumServiceProvider extends ServiceProvider
                 if (!is_subclass_of($class, Operation::class)) {
                     continue;
                 }
+
                 $panels = (array) $class::$panels;
 
                 foreach ($panels as $panel) {

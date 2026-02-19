@@ -47,7 +47,16 @@ abstract class Operation
 
         if ($context->isPost()) {
 
-            $context->validate($this->rules());
+            $schema = method_exists($this,'schema')
+                ? $this->call('schema', $context, ...$args)
+                : [];
+
+            $rules = array_merge(
+                $this->collectRules($schema),
+                $this->rules()
+            );
+
+            $context->validate($rules);
 
             if (method_exists($this, 'save')) {
                 $result = $this->call('save', $context, ...$args);
@@ -68,6 +77,38 @@ abstract class Operation
         }
 
         return $this->render($context, ...$args);
+    }
+
+    protected function collectRules(array $schema): array
+    {
+        $rules = [];
+
+        $walk = function ($components) use (&$rules, &$walk) {
+            foreach ($components as $component) {
+
+                if ($component instanceof \Upsoftware\Svarium\UI\Components\FieldComponent) {
+                    $componentRules = $component->getValidationRules();
+
+                    if (!empty($componentRules)) {
+                        $rules[$component->getName()] = $componentRules;
+                    }
+                }
+
+                if (!empty($component->children)) {
+                    $walk($component->children);
+                }
+
+                if (!empty($component->slots)) {
+                    foreach ($component->slots as $slot) {
+                        $walk($slot);
+                    }
+                }
+            }
+        };
+
+        $walk($schema);
+
+        return $rules;
     }
 
     protected function render(PanelContext $context, ...$args): ComponentResult
