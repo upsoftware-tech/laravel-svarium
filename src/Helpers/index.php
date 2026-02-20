@@ -82,6 +82,11 @@ function svarium_resources($path = ''): string
     return svarium_path(implode('/', ['Resources', $path]));
 }
 
+function svarium_modules($path = ''): string
+{
+    return svarium_path(implode('/', ['Modules', $path]));
+}
+
 function svarium_config($path = ''): string
 {
     return svarium_path(implode('/', ['Config', $path]));

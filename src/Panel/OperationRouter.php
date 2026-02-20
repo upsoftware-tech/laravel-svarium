@@ -3,7 +3,6 @@
 namespace Upsoftware\Svarium\Panel;
 
 use Illuminate\Http\Request;
-use Inertia\Response as InertiaResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Upsoftware\Svarium\Http\ComponentResult;
 use Upsoftware\Svarium\Http\OperationResult;
@@ -30,7 +29,7 @@ class OperationRouter
         }, $middleware);
     }
 
-    public function handle(Request $request, string $panel, ?string $prefix): InertiaResponse|Response
+    public function handle(Request $request, string $panel, ?string $prefix): Response
     {
         $panelName = $panel;
         $panel = app(PanelRegistry::class)->get($panelName);
@@ -89,15 +88,15 @@ class OperationRouter
             $panelObj = $panel;
             $layout = $operation::$layout ?: $panelObj?->layout;
             if (!$layout) {
-                $panelObj = app(PanelRegistry::class)->get($panel);
+                $panelObj = $panel instanceof \Upsoftware\Svarium\Panel\Panel
+                    ? $panel
+                    : app(PanelRegistry::class)->get($panel);
                 $layout = $panelObj?->layout;
             }
 
             $result->setLayout($layout);
             $result->setView($operation::$view);
         }
-
-
 
         if ($result instanceof OperationResult) {
             return $result->toResponse();

@@ -3,7 +3,7 @@
 namespace Upsoftware\Svarium\Http;
 
 use Inertia\Inertia;
-use Inertia\Response;
+use Symfony\Component\HttpFoundation\Response;
 use Upsoftware\Svarium\UI\Component;
 use Upsoftware\Svarium\UI\Layouts\PanelLayout;
 
@@ -147,6 +147,6 @@ class ComponentResult implements OperationResult
         return Inertia::render($view, [
             'tree' => $layout->toArray(),
             'meta' => $this->meta,
-        ]);
+        ])->toResponse(request());
     }
 }
